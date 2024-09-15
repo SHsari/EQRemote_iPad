@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="ipad7_9" orientation="portrait" layout="fullscreen" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--BluetoothVC-->
+        <scene sceneID="s0d-6b-0kx">
+            <objects>
+                <viewController storyboardIdentifier="BluetoothVC" id="Y6W-OH-hqX" customClass="BluetoothVC" customModule="TouchRemote3" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="5EZ-qb-Rvc">
+                        <rect key="frame" x="0.0" y="0.0" width="744" height="1133"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Connect To Bluetooth Peripherals" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1QZ-1K-KK7">
+                                <rect key="frame" x="10" y="34" width="724" height="29"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="24"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="TSg-LG-gy1">
+                                <rect key="frame" x="0.0" y="155" width="744" height="958"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
+                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5wD-Wg-IEO">
+                                <rect key="frame" x="10" y="73" width="724" height="36"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="36" id="h8M-e2-sTJ"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="gray" title="Connect to Selected Peripheral"/>
+                                <connections>
+                                    <action selector="connectButton:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="0Gd-jU-eaN"/>
+                                </connections>
+                            </button>
+                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ma8-lw-FcK">
+                                <rect key="frame" x="10" y="109" width="724" height="36"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="36" id="K3y-iW-J9j"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="gray" title="Disconnect"/>
+                                <connections>
+                                    <action selector="disconnectButton:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="4DT-m9-neK"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="5wD-Wg-IEO" secondAttribute="trailing" constant="10" id="33m-A3-sS8"/>
+                            <constraint firstItem="1QZ-1K-KK7" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="10" id="4yC-4c-YaZ"/>
+                            <constraint firstItem="TSg-LG-gy1" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="5TH-yH-rV2"/>
+                            <constraint firstItem="Ma8-lw-FcK" firstAttribute="top" secondItem="5wD-Wg-IEO" secondAttribute="bottom" id="9xC-EL-azf"/>
+                            <constraint firstItem="5wD-Wg-IEO" firstAttribute="leading" secondItem="5EZ-qb-Rvc" secondAttribute="leading" constant="10" id="Jl3-oP-ZUc"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="1QZ-1K-KK7" secondAttribute="trailing" constant="10" id="LRY-u1-uFz"/>
+                            <constraint firstItem="1QZ-1K-KK7" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="10" id="SSs-WK-A57"/>
+                            <constraint firstItem="Ma8-lw-FcK" firstAttribute="leading" secondItem="5EZ-qb-Rvc" secondAttribute="leading" constant="10" id="V6w-ak-TTm"/>
+                            <constraint firstItem="TSg-LG-gy1" firstAttribute="top" secondItem="Ma8-lw-FcK" secondAttribute="bottom" constant="10" id="Z3X-IL-8Bj"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="TSg-LG-gy1" secondAttribute="trailing" id="hZ1-6K-22A"/>
+                            <constraint firstAttribute="trailing" secondItem="Ma8-lw-FcK" secondAttribute="trailing" constant="10" id="jUZ-Fb-yMH"/>
+                            <constraint firstItem="1QZ-1K-KK7" firstAttribute="bottom" secondItem="5wD-Wg-IEO" secondAttribute="top" constant="-10" id="ugO-gl-njH"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="TSg-LG-gy1" secondAttribute="bottom" id="vKM-2A-mJh"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="connectButton" destination="5wD-Wg-IEO" id="bx2-3L-7BM"/>
+                        <outlet property="connectButtonHeightsConstraint" destination="h8M-e2-sTJ" id="Hez-co-tNo"/>
+                        <outlet property="disconnectButton" destination="Ma8-lw-FcK" id="D3M-Gd-Lhn"/>
+                        <outlet property="disconnectButtonHeightsConstraint" destination="K3y-iW-J9j" id="qWg-TA-uzE"/>
+                        <outlet property="peripheralsTableView" destination="TSg-LG-gy1" id="K9g-2O-oit"/>
+                        <outlet property="titleLabel" destination="1QZ-1K-KK7" id="rQd-Sw-ocs"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-962" y="-654"/>
+        </scene>
+        <!--PresetVC-->
+        <scene sceneID="bgo-jf-h9r">
+            <objects>
+                <viewController id="uqs-He-wcf" customClass="PresetVC" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="tmn-pF-xFJ">
+                        <rect key="frame" x="0.0" y="0.0" width="744" height="1133"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="NYq-V8-nnL"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="aM2-pN-EyT" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-171" y="-654"/>
+        </scene>
+    </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>
