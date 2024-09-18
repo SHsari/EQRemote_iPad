@@ -39,7 +39,7 @@ class HighPass: EQFilterClass, EQFilterPrtc {
         let w0wDivQ = omega*w0 / Q
         let denominator = magnitudeComplex(w02_w2, w0wDivQ)
         response.dB = magnitudeTodB(omega2 / denominator)
-        response.leafDidUpdate()
+        response.responseDidUpdate()
     }
     
 }

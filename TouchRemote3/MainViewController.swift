@@ -116,7 +116,7 @@ class MainViewController: UIViewController {
         parameterViewArray[index].setViewActive(tf)
         touchMeView.setDotActive(index, isActive: tf)
         filterButtons[index]?.isEnabled = tf
-        if !tf { allResponses[index].setResponseDefault() }
+        if !tf { allResponse[index].dB = defaultDoubleArray }
         else { filters[index].updateResponse() }
         filterView.masterGraphUpdate()
     }
@@ -198,7 +198,6 @@ extension MainViewController { //initializers
     }
     
     private func initModelsWithFactoryPreset() {
-        combinedResponse.setTree(allResponses, nil)
         for (i, band) in globalBands.enumerated() {
             filters.append(Peak(i))
             setOneFilter(band, i)

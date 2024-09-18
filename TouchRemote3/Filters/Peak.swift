@@ -45,7 +45,7 @@ class Peak: EQFilterClass, EQFilterPrtc {
         let numerator = magnitudeComplex(w02_w2, w0wDivQ*A)
         let denominator = magnitudeComplex(w02_w2, w0wDivQ/A)
         response.dB = magnitudeTodB( numerator / denominator )
-        response.leafDidUpdate()
+        response.responseDidUpdate()
     }
 
 }

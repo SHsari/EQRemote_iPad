@@ -34,7 +34,7 @@ class EQFilterClass {
     
     init(_ index: Int) {
         self.delegate = parameterViewArray[index] as? EQFilterDelegate
-        self.response = allResponses[index]
+        self.response = allResponse[index]
         self.xyz = globalBands[index].position
     }
 }

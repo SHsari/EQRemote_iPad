@@ -33,6 +33,8 @@
 		6639285B2C6FB940009D38BD /* BluetoothVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6639285A2C6FB940009D38BD /* BluetoothVC.swift */; };
 		6639285D2C6FBD5D009D38BD /* ToolBarVC.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6639285C2C6FBD5D009D38BD /* ToolBarVC.storyboard */; };
 		6639285F2C6FBD6C009D38BD /* BluetoothSerial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6639285E2C6FBD6C009D38BD /* BluetoothSerial.swift */; };
+		669ACBAF2C9B1BE700826B66 /* BandController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669ACBAE2C9B1BE700826B66 /* BandController.swift */; };
+		669ACBB12C9B1C8C00826B66 /* MovingDot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669ACBB02C9B1C8C00826B66 /* MovingDot.swift */; };
 		66AE11DD2C8F61AA00224B11 /* TaskManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE11DC2C8F61AA00224B11 /* TaskManager.swift */; };
 		66AE11DF2C8F635100224B11 /* FilterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE11DE2C8F635100224B11 /* FilterManager.swift */; };
 		66AE11E32C91AB9700224B11 /* Preset_Band.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE11E22C91AB9700224B11 /* Preset_Band.swift */; };
@@ -84,6 +86,8 @@
 		6639285A2C6FB940009D38BD /* BluetoothVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothVC.swift; sourceTree = "<group>"; };
 		6639285C2C6FBD5D009D38BD /* ToolBarVC.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = ToolBarVC.storyboard; sourceTree = "<group>"; };
 		6639285E2C6FBD6C009D38BD /* BluetoothSerial.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BluetoothSerial.swift; sourceTree = "<group>"; };
+		669ACBAE2C9B1BE700826B66 /* BandController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BandController.swift; sourceTree = "<group>"; };
+		669ACBB02C9B1C8C00826B66 /* MovingDot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovingDot.swift; sourceTree = "<group>"; };
 		66AE11DC2C8F61AA00224B11 /* TaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskManager.swift; sourceTree = "<group>"; };
 		66AE11DE2C8F635100224B11 /* FilterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterManager.swift; sourceTree = "<group>"; };
 		66AE11E22C91AB9700224B11 /* Preset_Band.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preset_Band.swift; sourceTree = "<group>"; };
@@ -105,6 +109,8 @@
 		663927CA2C6DE0E6009D38BD = {
 			isa = PBXGroup;
 			children = (
+				669ACBB02C9B1C8C00826B66 /* MovingDot.swift */,
+				669ACBAE2C9B1BE700826B66 /* BandController.swift */,
 				663927D52C6DE0E6009D38BD /* TouchRemote3 */,
 				663927D42C6DE0E6009D38BD /* Products */,
 			);
@@ -274,7 +280,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				6639284F2C6F974E009D38BD /* GridView.swift in Sources */,
+				669ACBB12C9B1C8C00826B66 /* MovingDot.swift in Sources */,
 				6639283C2C6DF236009D38BD /* HighShelf.swift in Sources */,
+				669ACBAF2C9B1BE700826B66 /* BandController.swift in Sources */,
 				663928592C6FAAA9009D38BD /* TouchMeView.swift in Sources */,
 				6639284B2C6E8AF4009D38BD /* PView_noSlider.swift in Sources */,
 				663928382C6DF22C009D38BD /* FunctionsAndConsts.swift in Sources */,
@@ -442,7 +450,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 746UF2ZA24;
+				DEVELOPMENT_TEAM = 4SR72F88BS;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TouchRemote3/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -470,7 +478,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 746UF2ZA24;
+				DEVELOPMENT_TEAM = 4SR72F88BS;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TouchRemote3/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

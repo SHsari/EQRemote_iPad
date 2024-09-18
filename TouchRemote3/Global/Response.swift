@@ -7,58 +7,41 @@
 
 import Foundation
 
-var allResponses: [Response] = [Response(), Response(), Response(), Response(), Response(), Response(), Response(), Response()]
-var combinedResponse = Response()
+var allResponse: [Response] = [Response(), Response(), Response(), Response(), Response(), Response(), Response(), Response()]
+var rootResponse = ResponseParent(allResponse)
 
-protocol ResponseParent: Response{
+protocol ResponseChildDelegate: Response {
     func childDidUpdate()
 }
-protocol ResponseChild: Response{
-    var dB: [Double] {get}
-    func setTree(_ array: [Response], _ parent: Response?)
-}
 
-class Response: ResponseParent, ResponseChild {
+class Response {
+    var parent: ResponseChildDelegate?
     var dB = defaultDoubleArray
-    weak var parent: ResponseParent?
-    private var child1: ResponseChild?
-    private var child2: ResponseChild?
-    
-    init(dB: [Double] = defaultDoubleArray) {
-        self.dB = dB
-    }
-    func setResponseDefault() {
-        dB = defaultDoubleArray
+    func responseDidUpdate() {
         parent?.childDidUpdate()
-    }
-    func leafDidUpdate() {
-        parent?.childDidUpdate()
-    }
-    func childDidUpdate() {
-        dB = child1! + child2!
-        parent?.childDidUpdate()
-    }
-    
-    func setTree(_ array: [Response], _ parent: Response?) {
-        if let parent = parent {
-            self.parent = parent
-        }
-        let arraySize = array.count
-        if arraySize == 2 {
-            child1 = array[0]
-            child1?.parent = self
-            child2 = array[1]
-            child2?.parent = self
-        } else {
-            let midPoint = arraySize/2
-            child1 = Response()
-            child2 = Response()
-            child1!.setTree(Array(array[0..<midPoint]), self)
-            child2!.setTree(Array(array[midPoint..<arraySize]), self)
-        }
-    }
-    static func +(lhs: Response, rhs: Response) -> [Double]{
-        return zip(lhs.dB, rhs.dB).map { $0 + $1 }
     }
 }
 
+class ResponseParent: Response, ResponseChildDelegate {
+    var child1: Response
+    var child2: Response
+
+    func childDidUpdate() {
+        self.dB = child1.dB + child2.dB
+        parent?.childDidUpdate()
+    }
+    init(_ array: [Response]) {
+        let count = array.count
+        if count == 2 {
+            child1 = array[0]
+            child2 = array[1]
+        } else {
+            let midIndex = count/2
+            child1 = ResponseParent(Array(array[0..<midIndex]))
+            child2 = ResponseParent(Array(array[midIndex..<count]))
+        }
+        super.init()
+        child1.parent = self
+        child2.parent = self
+    }
+}

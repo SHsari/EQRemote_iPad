@@ -67,12 +67,12 @@ class FilterView: UIView {
     }
     
     func responseDidUpdate(at index: Int) {
-        updatePath(of: shapeLayers[index], with: allResponses[index])
+        updatePath(of: shapeLayers[index], with: allResponse[index])
         bringLayerToFront(index)
     }
     
     func masterGraphUpdate() {
-        updatePath(of: masterLayer, with: combinedResponse)
+        updatePath(of: masterLayer, with: rootResponse)
     }
     
     private func updatePath(of layer: CAShapeLayer, with response: Response) {

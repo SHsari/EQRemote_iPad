@@ -35,6 +35,7 @@ enum Task {
 
 class TaskList {
 
+    var listMaxIndex = 127
     var taskList: [Task]
     var listCurrentIndex: Int
     
@@ -45,13 +46,13 @@ class TaskList {
     
     func listAppend(_ index: Int?) {
         let lastIndex = taskList.count - 1
-        if listCurrentIndex < lastIndex {
-            if listCurrentIndex == -1 {
-                taskList = []
-            } else {
-                taskList = Array(taskList[0...listCurrentIndex])
-            }
-            print("taskList.count: \(taskList.count)")
+        if listCurrentIndex < lastIndex { // list의 중간에서 Append 하게 될 때, 후순위로 저장되어 있던 동작을 모두 지움.
+            if lastIndex == -1 { taskList = [] }
+            else { taskList = Array(taskList[0...listCurrentIndex])
+                print("taskList.count: \(taskList.count)") }
+        } else if listCurrentIndex == listMaxIndex {
+            taskList.removeFirst()
+            listCurrentIndex -= 1
         }
         if let index = index {
             let task = Task.Band(Task_Band(at: index, before: pendingTaskBand, after: globalBands[index]))

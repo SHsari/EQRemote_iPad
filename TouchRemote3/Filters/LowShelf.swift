@@ -50,7 +50,7 @@ class LowShelf: EQFilterClass, EQFilterPrtc {
         let numerator = magnitudeComplex(numeReal, imag)
         let denominator = magnitudeComplex(denoReal, imag)
         self.response.dB = magnitudeTodB( A * numerator/denominator )
-        response.leafDidUpdate()
+        response.responseDidUpdate()
     }
 
 }

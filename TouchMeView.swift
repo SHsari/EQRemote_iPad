@@ -13,14 +13,55 @@ protocol TouchMeViewDelegate: AnyObject {
     func touchesEnded(_ index: Int)
 }
 
+class MovingDot: CAShapeLayer {
+    var index: Int
+    
+    init(index: Int) {
+        self.index = index
+        super.init()
+    }
+    
+    override init(layer: Any) {
+        guard let layer = layer as? MovingDot else {
+            fatalError("init(layer:) called with non-MovingDot")
+        }
+        self.index = layer.index
+        super.init(layer: layer)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func setDotActive(_ isActive: Bool) {
+        self.isHidden = !isActive
+    }
+    func setXYPosition(_ x: Double, _ y: Double) {
+        self.position = getPositionFromNormValues(x, y)
+    }
+    
+    func setOpacity(value: Float) {
+        self.opacity = value
+    }
+    func getDistance(from point: CGPoint) -> CGFloat {
+        return hypot(position.x - point.x, position.y - point.y)
+    }
+    private func getPositionFromNormValues(_ x: Double, _ y: Double) -> CGPoint {
+        var point = CGPoint()
+        point.x = x * bounds.width
+        point.y = (1 - y) * bounds.height
+        return point
+    }
+}
+
 class TouchMeView: UIView {
     
     weak var delegate: TouchMeViewDelegate?
 
-    private var dots: [CAShapeLayer] = []
-    private var allDots: [CAShapeLayer] = []
+    private var dots: [MovingDot] = []
+    private var allDots: [MovingDot] = []
     
-    private var activeDot: CAShapeLayer?
+    private var activeDot: MovingDot?
     private var activeDotIndex: Int?
     private var initialTouchPoint: CGPoint?
     private var initialDotPoint: CGPoint?
@@ -34,7 +75,7 @@ class TouchMeView: UIView {
 
     func initializeDots() {
         for (i, position) in factoryPosition.enumerated() {
-            let dot = CAShapeLayer()
+            let dot = MovingDot(index: i)
             dot.fillColor = colorDict[i].cgColor
             dot.path = UIBezierPath(ovalIn: CGRect(x: -8, y: -8, width: 16, height: 16)).cgPath
             dot.position = getPositionFromNormValues(position)
@@ -48,11 +89,9 @@ class TouchMeView: UIView {
     func setSectionActive(_ section: Int) {
         let offset = section*sectionSize
         let endIndex = offset + sectionSize
+        allDots.forEach{ $0.setOpacity(value: 0.2) }
         dots = Array(allDots[offset..<endIndex])
-        allDots.forEach{ $0.opacity = 0.2 }
-        dots.enumerated().forEach{ i, dot in
-            dot.opacity = 1.0
-        }
+        dots.forEach{ $0.setOpacity(value: 1.0) }
     }
 
     func setDotActive(_ index: Int, isActive: Bool) {
@@ -76,18 +115,17 @@ class TouchMeView: UIView {
     private func setClosestDot() {
         // 가장 가까운 도트 찾기
         guard let point = initialTouchPoint else { return }
-        let closestDotInfo = allDots.enumerated().compactMap{ (index, dot) -> (element: CAShapeLayer, offset: Int, distance: CGFloat)? in
+        let closestDotInfo = dots.enumerated().compactMap{ (_ , dot) -> (element: MovingDot, index: Int, distance: CGFloat)? in
             guard !dot.isHidden else {return nil}
-            guard dots.contains(dot) else {return nil}
-            let distance = hypot(dot.position.x - point.x, dot.position.y - point.y)
+            let distance = dot.getDistance(from: point)
             if distance < greatestDistance {
-                return (element: dot, offset: index, distance: distance)
+                return (element: dot, index: dot.index, distance: distance)
             } else { return nil }
         }.min(by: { $0.distance < $1.distance})
         
         if let closestDotInfo = closestDotInfo{
             activeDot = closestDotInfo.element
-            activeDotIndex = closestDotInfo.offset
+            activeDotIndex = closestDotInfo.index
         } else {
             activeDot = nil
             activeDotIndex = nil
