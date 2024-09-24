@@ -8,50 +8,9 @@
 import UIKit
 
 protocol TouchMeViewDelegate: AnyObject {
-    func touchesBegin(_ index: Int)
-    func dotDidMove(_ index: Int, _ position: XYPosition)
-    func touchesEnded(_ index: Int)
-}
-
-class MovingDot: CAShapeLayer {
-    var index: Int
-    
-    init(index: Int) {
-        self.index = index
-        super.init()
-    }
-    
-    override init(layer: Any) {
-        guard let layer = layer as? MovingDot else {
-            fatalError("init(layer:) called with non-MovingDot")
-        }
-        self.index = layer.index
-        super.init(layer: layer)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    func setDotActive(_ isActive: Bool) {
-        self.isHidden = !isActive
-    }
-    func setXYPosition(_ x: Double, _ y: Double) {
-        self.position = getPositionFromNormValues(x, y)
-    }
-    
-    func setOpacity(value: Float) {
-        self.opacity = value
-    }
-    func getDistance(from point: CGPoint) -> CGFloat {
-        return hypot(position.x - point.x, position.y - point.y)
-    }
-    private func getPositionFromNormValues(_ x: Double, _ y: Double) -> CGPoint {
-        var point = CGPoint()
-        point.x = x * bounds.width
-        point.y = (1 - y) * bounds.height
-        return point
-    }
+    func touchesBegan(_ index: Int)
+    func touchesMoved(_ position: XYPosition)
+    func touchesEnded()
 }
 
 class TouchMeView: UIView {
@@ -60,12 +19,13 @@ class TouchMeView: UIView {
 
     private var dots: [MovingDot] = []
     private var allDots: [MovingDot] = []
+    private var dx: Double?
+    private var dy: Double?
     
     private var activeDot: MovingDot?
     private var activeDotIndex: Int?
-    private var initialTouchPoint: CGPoint?
-    private var initialDotPoint: CGPoint?
     private let greatestDistance = CGFloat(150)
+    private var offset: Int = 0
 
     
     required init?(coder: NSCoder) {
@@ -73,25 +33,28 @@ class TouchMeView: UIView {
         self.backgroundColor = .clear
     }
 
-    func initializeDots() {
-        for (i, position) in factoryPosition.enumerated() {
-            let dot = MovingDot(index: i)
+    func initialize() {
+        let xyPositions = factoryPreset_().bands.map { $0.getXY() }
+        for (i, position) in xyPositions.enumerated() {
+            let dot = MovingDot()
             dot.fillColor = colorDict[i].cgColor
             dot.path = UIBezierPath(ovalIn: CGRect(x: -8, y: -8, width: 16, height: 16)).cgPath
             dot.position = getPositionFromNormValues(position)
             dot.actions = ["position": NSNull()]
-            
+            dot.zPosition = CGFloat( i % sectionSize )
             allDots.append(dot)
             layer.addSublayer(dot)
         }
+        setSectionActive(0)
     }
 
     func setSectionActive(_ section: Int) {
-        let offset = section*sectionSize
-        let endIndex = offset + sectionSize
-        allDots.forEach{ $0.setOpacity(value: 0.2) }
-        dots = Array(allDots[offset..<endIndex])
-        dots.forEach{ $0.setOpacity(value: 1.0) }
+        for (i, dot) in allDots.enumerated() {
+            dot.opacity = 0.2; dot.zPosition = CGFloat(i % 4)
+        }
+        self.offset = section*sectionSize
+        dots = Array(allDots[offset..<offset+sectionSize])
+        dots.forEach{ $0.opacity = 1.0; $0.zPosition += 10 }
     }
 
     func setDotActive(_ index: Int, isActive: Bool) {
@@ -104,22 +67,20 @@ class TouchMeView: UIView {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let touch = touches.first {
-            initialTouchPoint = touch.location(in: self)
-            setClosestDot()
+            setClosestDot(touch.location(in: self))
             guard let dotIndex = activeDotIndex else {return}
-            delegate?.touchesBegin(dotIndex)
-            initialDotPoint = activeDot?.position
+            delegate?.touchesBegan(dotIndex)
+            bringActiveLayerFront()
         }
     }
     
-    private func setClosestDot() {
+    private func setClosestDot(_ initPoint: CGPoint) {
         // 가장 가까운 도트 찾기
-        guard let point = initialTouchPoint else { return }
-        let closestDotInfo = dots.enumerated().compactMap{ (_ , dot) -> (element: MovingDot, index: Int, distance: CGFloat)? in
+        let closestDotInfo = dots.enumerated().compactMap{ (index , dot) -> (element: MovingDot, index: Int, distance: CGFloat)? in
             guard !dot.isHidden else {return nil}
-            let distance = dot.getDistance(from: point)
+            let distance = dot.getDistance(from: initPoint)
             if distance < greatestDistance {
-                return (element: dot, index: dot.index, distance: distance)
+                return (element: dot, index: index+offset, distance: distance)
             } else { return nil }
         }.min(by: { $0.distance < $1.distance})
         
@@ -132,27 +93,27 @@ class TouchMeView: UIView {
         }
     }
 
+    private func bringActiveLayerFront() {
+        let indexedZ = activeDot!.zPosition
+        for dot in dots {
+            if dot.zPosition > indexedZ {
+                dot.zPosition -= 1
+            }
+        }
+        activeDot!.zPosition = 13
+    }
+    
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first,
               self.bounds.contains(touch.location(in: self)),
-              let initialTouch = initialTouchPoint,
-              let initialDotPoint = initialDotPoint,
-              let activeDot = activeDot,
-              let index = activeDotIndex else { return }
+              let activeDot = activeDot else { return }
         let location = touch.location(in: self)
-        let deltaX = location.x - initialTouch.x
-        let deltaY = location.y - initialTouch.y
-        
-        //CATransaction.begin()
-        //CATransaction.setDisableActions(true)
-        activeDot.position = CGPoint(x: initialDotPoint.x + deltaX, y: initialDotPoint.y + deltaY)
-        //CATransaction.commit()
-        delegate?.dotDidMove(index, getNormValues(activeDot.position))
+        let position = activeDot.setPosition(location)
+        delegate?.touchesMoved(getNormValues(position))
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let index = activeDotIndex else { return }
-        delegate?.touchesEnded(index)
+        delegate?.touchesEnded()
     }
     
     private func getNormValues(_ point: CGPoint) -> XYPosition {
@@ -168,4 +129,3 @@ class TouchMeView: UIView {
         return point
     }
 }
-

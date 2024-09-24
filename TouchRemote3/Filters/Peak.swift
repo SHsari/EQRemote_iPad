@@ -14,31 +14,53 @@ class Peak: EQFilterClass, EQFilterPrtc {
     private lazy var w0 = pi2 * freq
     private lazy var w02_w2 = w0^2 - omega2
     
-    required override init(_ index: Int) {
-        super.init(index)
-        setX()
-        setY()
-        setZ()
+    private var freq: Double { bind.x }
+    private var gain: Double { bind.y }
+    private var Q: Double { bind.z }
+    
+    func initialize(_ response: Response, _ norm: XYZPosition, _ bind: XYZPosition) {
+        self.response = response
+        self.bind = bind; self.norm = norm;
+        setNormX(norm.x); setNormY(norm.y); setNormZ(norm.z);
         updateResponse()
     }
     
-    func setX() {
-        self.freq = Calculate.frequency(xyz.x)
+    func setNormX(_ x: Double) {
+        norm.x = x
+        bind.x = Calculate.frequency(x)
+        xDidSet()
+    }
+    
+    func setNormY(_ y: Double) {
+        norm.y = y
+        bind.y = Calculate.gain(y)
+        yDidSet()
+    }
+    
+    func setNormZ(_ z: Double) {
+        norm.z = z
+        bind.z = Calculate.peakQ(z)
+    }
+    func setBindX(_ x: Double) {
+        bind.x = x
+        norm.x = Calculate.normX(x)
+        xDidSet()
+    }
+    func setBindY(_ y: Double) {
+        bind.y = y
+        norm.y = Calculate.normYwith(gain: y)
+        yDidSet()
+    }
+    func setBindZ(_ z: Double) {
+        bind.z = z
+        norm.z = Calculate.normZwith(peakQ: z)
+    }
+    
+    private func xDidSet() {
         w0 = pi2 * freq
         w02_w2 = w0^2 - omega2
-        delegate?.setXLabel(x: freq)
     }
-    
-    func setY() {
-        self.gain = Calculate.gain(xyz.y)
-        A = pow(10, gain/40)
-        delegate?.setYLabel(y: gain)
-    }
-    
-    func setZ() {
-        self.Q = Calculate.peakQ(xyz.z)
-        self.delegate?.setZLabel(z: Q)
-    }
+    private func yDidSet() { A = pow(10, gain/40) }
     
     func updateResponse() {
         let w0wDivQ = w0/Q * omega

@@ -415,35 +415,35 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="bandSwitch1" destination="ycC-eJ-gM1" id="tbD-GT-XDT"/>
-                        <outlet property="bandSwitch2" destination="NoX-5P-l2t" id="JSx-Ab-yyi"/>
-                        <outlet property="bandSwitch3" destination="IDZ-x0-E1f" id="JAF-Tj-Bw9"/>
-                        <outlet property="bandSwitch4" destination="bDE-C9-Mwk" id="Tqs-T5-mbf"/>
-                        <outlet property="bandSwitch5" destination="tbs-1k-R5K" id="2Gs-eg-6g8"/>
-                        <outlet property="bandSwitch6" destination="3w6-Yk-uNp" id="HbC-yy-aDF"/>
-                        <outlet property="bandSwitch7" destination="q8P-dB-HoZ" id="v2u-dE-zTe"/>
-                        <outlet property="bandSwitch8" destination="9Et-kO-8ye" id="b1Y-CT-5AC"/>
-                        <outlet property="filterButton1" destination="PdL-oZ-x0d" id="QRf-Cp-Wx1"/>
-                        <outlet property="filterButton2" destination="Bta-bt-YgV" id="Uco-Nh-tXT"/>
-                        <outlet property="filterButton3" destination="hMR-0B-q3U" id="PkQ-Ze-nmf"/>
-                        <outlet property="filterButton4" destination="Wv0-7K-IZn" id="dd5-BN-K0I"/>
-                        <outlet property="filterButton5" destination="eyp-SK-wF5" id="Eyu-03-TQt"/>
-                        <outlet property="filterButton6" destination="4Px-db-hTu" id="Lkb-M8-pxL"/>
-                        <outlet property="filterButton7" destination="Rtj-gI-BuC" id="4WS-GL-t5c"/>
-                        <outlet property="filterButton8" destination="tAP-4H-bwZ" id="GoZ-7t-4vS"/>
                         <outlet property="filterView" destination="rx5-6k-gVB" id="pTY-5y-A1u"/>
+                        <outlet property="onOffSwitch1" destination="ycC-eJ-gM1" id="cYe-LB-ls5"/>
+                        <outlet property="onOffSwitch2" destination="NoX-5P-l2t" id="MLi-5P-kat"/>
+                        <outlet property="onOffSwitch3" destination="IDZ-x0-E1f" id="BCs-ln-TBd"/>
+                        <outlet property="onOffSwitch4" destination="bDE-C9-Mwk" id="hgb-qV-Rdj"/>
+                        <outlet property="onOffSwitch5" destination="tbs-1k-R5K" id="dju-4A-MRQ"/>
+                        <outlet property="onOffSwitch6" destination="3w6-Yk-uNp" id="IKv-JQ-SPg"/>
+                        <outlet property="onOffSwitch7" destination="q8P-dB-HoZ" id="Omk-Xf-MsY"/>
+                        <outlet property="onOffSwitch8" destination="9Et-kO-8ye" id="DVz-LJ-26k"/>
+                        <outlet property="pView1" destination="Pm9-dG-KYL" id="rLe-8h-Bey"/>
+                        <outlet property="pView2" destination="lvF-OK-0xG" id="UOl-gZ-pIR"/>
+                        <outlet property="pView3" destination="LFH-uP-lcb" id="rjF-oV-8Ye"/>
+                        <outlet property="pView4" destination="mQg-Hi-hwF" id="1B2-MG-ntP"/>
+                        <outlet property="pView5" destination="LWY-l9-Gnd" id="RSq-R3-4nF"/>
+                        <outlet property="pView6" destination="VlS-Iq-C2p" id="fEy-Kn-Ois"/>
+                        <outlet property="pView7" destination="Rh8-HC-4JE" id="pKt-VB-XH3"/>
+                        <outlet property="pView8" destination="l1o-vo-D4Z" id="y9I-3H-AvS"/>
                         <outlet property="pViewSection1" destination="1YA-w4-Zcl" id="1NI-X4-9ay"/>
                         <outlet property="pViewSection2" destination="ysy-k1-zWv" id="9dy-dZ-I1H"/>
-                        <outlet property="paramView1" destination="Pm9-dG-KYL" id="oYX-Sy-IzB"/>
-                        <outlet property="paramView2" destination="lvF-OK-0xG" id="j9h-aP-99h"/>
-                        <outlet property="paramView3" destination="LFH-uP-lcb" id="vq7-bq-K8x"/>
-                        <outlet property="paramView4" destination="mQg-Hi-hwF" id="Lid-Go-w0x"/>
-                        <outlet property="paramView5" destination="LWY-l9-Gnd" id="olo-vX-w5V"/>
-                        <outlet property="paramView6" destination="VlS-Iq-C2p" id="0o6-YP-apO"/>
-                        <outlet property="paramView7" destination="Rh8-HC-4JE" id="dbC-Ar-ACu"/>
-                        <outlet property="paramView8" destination="l1o-vo-D4Z" id="wR3-R0-wzg"/>
                         <outlet property="sectionController" destination="DlE-c0-ES0" id="7KP-j5-xxH"/>
                         <outlet property="touchMeView" destination="e4r-nX-qgh" id="mNf-eq-Kdg"/>
+                        <outlet property="typeMenu1" destination="PdL-oZ-x0d" id="sHS-S1-KK8"/>
+                        <outlet property="typeMenu2" destination="Bta-bt-YgV" id="iRH-cU-ULe"/>
+                        <outlet property="typeMenu3" destination="hMR-0B-q3U" id="LCi-ik-urv"/>
+                        <outlet property="typeMenu4" destination="Wv0-7K-IZn" id="vfa-Fd-8KR"/>
+                        <outlet property="typeMenu5" destination="eyp-SK-wF5" id="bs3-LT-l1V"/>
+                        <outlet property="typeMenu6" destination="4Px-db-hTu" id="FgJ-Rf-aWo"/>
+                        <outlet property="typeMenu7" destination="Rtj-gI-BuC" id="q9k-I6-doH"/>
+                        <outlet property="typeMenu8" destination="tAP-4H-bwZ" id="b25-x7-iIC"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

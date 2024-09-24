@@ -7,15 +7,6 @@
 
 import UIKit
 
-var globalBands: [OneBand] = factoryPreset_().bands
-
-var parameterViewArray: [ParameterView] = []
-
-var pendingTaskBand = OneBand()
-
-var pendingTaskPreset = factoryPreset_()
-
-
 class MainViewController: UIViewController {
     
     @IBOutlet weak var sectionController: UISegmentedControl!
@@ -23,47 +14,57 @@ class MainViewController: UIViewController {
     @IBOutlet weak var pViewSection1: UIView!
     @IBOutlet weak var pViewSection2: UIView!
     
-    @IBOutlet var paramView1: UIView!
-    @IBOutlet var paramView2: UIView!
-    @IBOutlet var paramView3: UIView!
-    @IBOutlet var paramView4: UIView!
-    @IBOutlet var paramView5: UIView!
-    @IBOutlet var paramView6: UIView!
-    @IBOutlet var paramView7: UIView!
-    @IBOutlet var paramView8: UIView!
+    @IBOutlet var pView1: UIView!
+    @IBOutlet var pView2: UIView!
+    @IBOutlet var pView3: UIView!
+    @IBOutlet var pView4: UIView!
+    @IBOutlet var pView5: UIView!
+    @IBOutlet var pView6: UIView!
+    @IBOutlet var pView7: UIView!
+    @IBOutlet var pView8: UIView!
     
-    private lazy var paramViews_ = [paramView1, paramView2, paramView3, paramView4, paramView5, paramView6, paramView7, paramView8]
+    private lazy var paramViews_ = [pView1, pView2, pView3, pView4, pView5, pView6, pView7, pView8]
+    private var parameterViews: [ParameterView] = []
     
-    @IBOutlet weak var bandSwitch1: UISwitch!
-    @IBOutlet weak var bandSwitch2: UISwitch!
-    @IBOutlet weak var bandSwitch3: UISwitch!
-    @IBOutlet weak var bandSwitch4: UISwitch!
-    @IBOutlet weak var bandSwitch5: UISwitch!
-    @IBOutlet weak var bandSwitch6: UISwitch!
-    @IBOutlet weak var bandSwitch7: UISwitch!
-    @IBOutlet weak var bandSwitch8: UISwitch!
+    @IBOutlet weak var onOffSwitch1: UISwitch!
+    @IBOutlet weak var onOffSwitch2: UISwitch!
+    @IBOutlet weak var onOffSwitch3: UISwitch!
+    @IBOutlet weak var onOffSwitch4: UISwitch!
+    @IBOutlet weak var onOffSwitch5: UISwitch!
+    @IBOutlet weak var onOffSwitch6: UISwitch!
+    @IBOutlet weak var onOffSwitch7: UISwitch!
+    @IBOutlet weak var onOffSwitch8: UISwitch!
     
-    private lazy var bandSwitches = [bandSwitch1, bandSwitch2, bandSwitch3, bandSwitch4, bandSwitch5, bandSwitch6, bandSwitch7, bandSwitch8]
+    private lazy var bandSwitches = [onOffSwitch1, onOffSwitch2, onOffSwitch3, onOffSwitch4, onOffSwitch5, onOffSwitch6, onOffSwitch7, onOffSwitch8]
     
-    @IBOutlet var filterButton1: UIButton!
-    @IBOutlet var filterButton2: UIButton!
-    @IBOutlet var filterButton3: UIButton!
-    @IBOutlet var filterButton4: UIButton!
-    @IBOutlet var filterButton5: UIButton!
-    @IBOutlet var filterButton6: UIButton!
-    @IBOutlet var filterButton7: UIButton!
-    @IBOutlet var filterButton8: UIButton!
+    @IBOutlet var typeMenu1: UIButton!
+    @IBOutlet var typeMenu2: UIButton!
+    @IBOutlet var typeMenu3: UIButton!
+    @IBOutlet var typeMenu4: UIButton!
+    @IBOutlet var typeMenu5: UIButton!
+    @IBOutlet var typeMenu6: UIButton!
+    @IBOutlet var typeMenu7: UIButton!
+    @IBOutlet var typeMenu8: UIButton!
     
-    lazy var filterButtons = [filterButton1, filterButton2, filterButton3, filterButton4, filterButton5, filterButton6, filterButton7, filterButton8]
+    lazy var typeMenu = [typeMenu1, typeMenu2, typeMenu3, typeMenu4, typeMenu5, typeMenu6, typeMenu7, typeMenu8]
     
     @IBOutlet var filterView: FilterView!
     @IBOutlet var touchMeView: TouchMeView!
-    
     var gridView: GridView!
     
+    var responses: [Response] = []
+    var rootResponse = ResponseParent([])
     var filters: [EQFilterPrtc] = []
+    private var bind: [XYZPosition] = []
+    private var norm: [XYZPosition] = []
+    var storages: [OneBand] = []
     
-    var taskManager = TaskList()
+    var activePView: ParameterView = PView_noSlider()
+    var activeFilter: EQFilterPrtc = Peak()
+    
+    //var taskManager = TaskList()
+    var pendingTaskBand = OneBand()
+    var pendingTaskPreset = factoryPreset_()
     
     var bthDataSender = BluetoothDataSender()
     var bluetoothVC: BluetoothVC?
@@ -73,12 +74,12 @@ class MainViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         initBandSwitchColor()
-        initFilterButtonOptions()
+        initTypeMenuOptions()
+        initModels()
+        
         initFilterViewAndTouchMeView()
         initParameterViews()
         initGridView()
-        initModelsWithFactoryPreset()
-        initBluetoothVC()
     }
     
     private let typeStringDict: [FilterType : String] = [
@@ -89,7 +90,7 @@ class MainViewController: UIViewController {
         .highShelf: "HighShelf"
     ]
     let typeStringArray = ["Peak", "LowPass", "HighPass", "LowShelf", "HighShelf"]
-
+    
     let numberTypeDict: [Int : FilterType] = [
         0: .peak,
         1: .lowPass,
@@ -98,11 +99,10 @@ class MainViewController: UIViewController {
         4: .highShelf
     ]
     
-    
     @IBAction func sectionChanged(_ sender: UISegmentedControl) {
         let section = sender.selectedSegmentIndex
         touchMeView.setSectionActive(section)
-        filterView.setActiveSection(section)
+        filterView.setSectionActive(section)
         let isSection1Selected = section == 0
         pViewSection1.isHidden = !isSection1Selected
         pViewSection2.isHidden = isSection1Selected
@@ -110,56 +110,29 @@ class MainViewController: UIViewController {
     
     @IBAction func filterOnOffSwitch(_ sender: UISwitch) {
         let index = sender.tag
-        let tf = sender.isOn
-        globalBands[index].isOn = tf
-        bthDataSender.sendOnOffData(at: index, isOn: tf)
-        parameterViewArray[index].setViewActive(tf)
-        touchMeView.setDotActive(index, isActive: tf)
-        filterButtons[index]?.isEnabled = tf
-        if !tf { allResponse[index].dB = defaultDoubleArray }
+        let isOn = sender.isOn
+        storages[index].isOn = isOn
+        parameterViews[index].setViewActive(isOn)
+        touchMeView.setDotActive(index, isActive: isOn)
+        typeMenu[index]?.isEnabled = isOn
+        if !isOn {
+            responses[index].dB = defaultDoubleArray
+            responses[index].responseDidUpdate()
+        }
         else { filters[index].updateResponse() }
         filterView.masterGraphUpdate()
     }
-    
-    @IBAction func bluetoothButtonPushed(_ sender: UIButton) {
-        guard let vc = bluetoothVC else { return }
-        self.present(vc, animated: true)
-    }
-    
-    @IBAction func undo(_ sender: UIButton) {
-        let index = taskManager.undo()
-        guard let index = index else { return }
-        if index == -1 {
-            setByPreset()
-        } else {
-            setBandByPreset(index)
-            filterView.masterGraphUpdate()
-        }
-    }
-    
-    @IBAction func redo(_ sender: UIButton) {
-        let index = taskManager.redo()
-        guard let index = index else { return }
-        if index == -1 {
-            setByPreset()
-        } else {
-            setBandByPreset(index)
-            filterView.masterGraphUpdate()
-        }
-    }
 }
 
-
 extension MainViewController { //initializers
-    
     private func initBandSwitchColor() {
         for (i, switch_) in bandSwitches.enumerated(){
             switch_?.onTintColor = colorDict[i]
         }
     }
-    private func initFilterButtonOptions() {
+    private func initTypeMenuOptions() {
         // and sets the actions for each option in the menu.
-        for (i, button) in filterButtons.enumerated() {
+        for (i, button) in typeMenu.enumerated() {
             var optionsArray: [UIAction] = []
             for (filterIndex, title) in typeStringArray.enumerated() {
                 let option = UIAction(title: title, handler: { [weak self] _ in
@@ -175,20 +148,41 @@ extension MainViewController { //initializers
         }
     }
     
+    private func initModels() {
+        for band in factoryPreset_().bands {
+            storages.append(band)
+            let norm = band.position
+            let bind = XYZPosition()
+            let response = Response()
+            let filter = EQFilterClass.typeDict[band.type]!()
+            self.norm.append(norm)
+            self.bind.append(bind)
+            responses.append(response)
+            filters.append(filter)
+            filter.initialize(response, norm, bind)
+        }
+        rootResponse = ResponseParent(responses)
+    }
+    
     private func initParameterViews() {
         for (i, band) in factoryPreset.bands.enumerated() {
             let view = loadPViewFromXib(i, band.type)
             view.tintColor = colorDict[i]
             view.backgroundColor = .clear
-            parameterViewArray.append(view)
+            parameterViews.append(view)
+            view.initialize(bind[i], i, self)
+            view.updateXLabel()
+            view.updateYLabel()
+            view.updateZLabel()
+            view.updateSlider(norm[i].z)
         }
         pViewSection2.isHidden = true
     }
     
     private func initFilterViewAndTouchMeView() {
         touchMeView.delegate = self
-        touchMeView.initializeDots()
-        touchMeView.setSectionActive(0)
+        touchMeView.initialize()
+        filterView.initialize(rootResponse)
     }
     
     private func initGridView() {
@@ -196,70 +190,42 @@ extension MainViewController { //initializers
         filterView.addSubview(gridView)
         filterView.sendSubviewToBack(gridView)
     }
-    
-    private func initModelsWithFactoryPreset() {
-        for (i, band) in globalBands.enumerated() {
-            filters.append(Peak(i))
-            setOneFilter(band, i)
-        }
-    }
-    
-    private func initBluetoothVC() {
-        let storyboard = UIStoryboard(name: "ToolBarVC", bundle: nil)
-        guard let bluetoothVC = storyboard.instantiateViewController(withIdentifier: "BluetoothVC") as? BluetoothVC else {
-            print("instantiate bluetoothVC Failed"); return }
-        bluetoothVC.modalPresentationStyle = .formSheet
-        bluetoothVC.delegate = self
-        self.bluetoothVC = bluetoothVC
-    }
 }
 
 
 extension MainViewController: PViewDelegate, TouchMeViewDelegate {
     
     func pViewSliderMoved(_ index: Int, _ value: Double) {
-        globalBands[index].setZ(value)
-        bthDataSender.sendZdata(at: index, z: value)
-        let filter = filters[index]
-        filter.setZ()
-        filter.updateResponse()
-        filterView.responseDidUpdate(at: index)
-        filterView.masterGraphUpdate()
+        activeFilter.setNormZ(value)
+        activeFilter.updateResponse()
+        filterView.responseDidUpdate()
     }
     
     func pViewSliderTouchBegin(_ index: Int) {
-        pendingTaskBand = globalBands[index].copy() as! OneBand
+        activeFilter = filters[index]
+        filterView.touchesBegin(index, responses[index])
     }
     
     func pViewSliderTouchEnded(_ index: Int) {
-        let zValue = globalBands[index].getZ()
-        bthDataSender.sendZdata(at: index, z: zValue, interval: false)
-        taskManager.listAppend(index)
     }
     
-    func pViewMenuChanged(_ type: Slope) {
+    func touchesMoved(_ position: XYPosition) {
+        activeFilter.setNormX(position.x)
+        activeFilter.setNormY(position.y)
+        activeFilter.updateResponse()
+        filterView.responseDidUpdate()
+        activePView.updateXLabel()
+        activePView.updateYLabel()
+    }
+    
+    func touchesBegan(_ index: Int) {
+        activeFilter = filters[index]
+        activePView = parameterViews[index]
+        filterView.touchesBegin(index, responses[index])
+    }
+    
+    func touchesEnded() {
         
-    }
-    
-    func dotDidMove(_ index: Int, _ position: XYPosition) {
-        globalBands[index].setXY(position)
-        bthDataSender.sendXYdata(at: index, xy: position)
-        let filter = filters[index]
-        filter.setX()
-        filter.setY()
-        filter.updateResponse()
-        filterView.responseDidUpdate(at: index)
-        filterView.masterGraphUpdate()
-    }
-    
-    func touchesBegin(_ index: Int) {
-        pendingTaskBand = globalBands[index].copy() as! OneBand
-    }
-    
-    func touchesEnded(_ index: Int) {
-        let position = globalBands[index].getXY()
-        bthDataSender.sendXYdata(at: index, xy: position, interval: false)
-        taskManager.listAppend(index)
     }
     
 }
@@ -267,56 +233,35 @@ extension MainViewController: PViewDelegate, TouchMeViewDelegate {
 extension MainViewController {
     // typeParameter의 변화에 따라서 사용될 함수들
     private func changeInFilterType(index: Int, type: FilterType) {
-        let band = globalBands[index]
-        pendingTaskBand = band.copy() as! OneBand
-        band.type = type
-        taskManager.listAppend(index)
-        bthDataSender.sendBandData(at: index, band: band)
-        setPViewWithPreset(index, type, band.getZ())
-        setOneFilter(band, index)
-        filterView.responseDidUpdate(at: index)
-        filterView.masterGraphUpdate()
+        let filter = EQFilterClass.typeDict[type]!()
+        filter.initialize(responses[index], norm[index], bind[index])
+        filters[index] = filter
+        changePview(at: index, type: type)
+        filterView.responseDidUpdate()
     }
-    
+    /*
     private func setBandByPreset(_ index: Int) {
-        let band = globalBands[index]
-        bthDataSender.sendBandData(at: index, band: band)
         setFilterMenuSelection(index, band.type)
-        setPViewWithPreset(index, band.type, band.getZ())
+        setPViewWithPreset(index, band.type, 0.5)
         touchMeView.setDotByPreset(index: index, value: band.getXY())
-        setOneFilter(band, index)
-        filterView.responseDidUpdate(at: index)
+        filterView.responseDidUpdate()
     }
 
     private func setByPreset() {
-        for i in 0..<globalBands.count {
+        for i in 0..<bands.count {
             setBandByPreset(i)
         }
         filterView.masterGraphUpdate()
-    }
-    
-    private func setPViewWithPreset(_ index: Int, _ type: FilterType, _ z: Double) {
-        parameterViewArray[index].removeFromSuperview()
+    }*/
+    private func changePview(at index: Int, type: FilterType) {
+        parameterViews[index].removeFromSuperview()
         let newView = loadPViewFromXib(index, type)
-        parameterViewArray[index] = newView
-        newView.setSliderByPreset(z)
-    }
-    
-    private func setOneFilter(_ band: OneBand, _ index: Int) {
-        var filter: EQFilterPrtc
-        switch band.type {
-        case .peak:
-            filter = Peak(index)
-        case .lowPass:
-            filter = LowPass(index)
-        case .highPass:
-            filter = HighPass(index)
-        case .lowShelf:
-            filter = LowShelf(index)
-        case .highShelf:
-            filter = HighShelf(index)
-        }
-        filters[index] = filter
+        parameterViews[index] = newView
+        newView.initialize(bind[index], index, self)
+        newView.updateXLabel()
+        newView.updateYLabel()
+        newView.updateZLabel()
+        newView.updateSlider(norm[index].z)
     }
     
     private func loadPViewFromXib(_ index: Int, _ type: FilterType) -> ParameterView {
@@ -334,7 +279,7 @@ extension MainViewController {
     
     private func setFilterMenuSelection(_ index: Int, _ type: FilterType) {
         guard let typeString = typeStringDict[type] else {return}
-        guard let button = filterButtons[index] else {return}
+        guard let button = typeMenu[index] else {return}
         button.setTitle(typeString, for: .normal)
         button.menu?.children.forEach { action in
             guard let action_ = action as? UIAction else {return}
@@ -350,7 +295,7 @@ extension MainViewController {
 extension MainViewController: BluetoothVCDelegate {
     func bluetoothConnected(serial: BluetoothSerial) {
         self.bthDataSender.serial = serial
-        self.bthDataSender.resetAllData(preset: globalBands)
+        self.bthDataSender.resetAllData(preset: storages)
     }
     
     func btWriteFailed() {

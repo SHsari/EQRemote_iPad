@@ -4,7 +4,7 @@
 //
 //  Created by Seokhyun Song on 9/10/24.
 //
-
+/*
 import Foundation
 
 class Task_Band {
@@ -34,6 +34,9 @@ enum Task {
 }
 
 class TaskList {
+    
+    var pendingTaskBand = OneBand()
+    var pendingTaskPreset = factoryPreset_()
 
     var listMaxIndex = 127
     var taskList: [Task]
@@ -69,7 +72,7 @@ class TaskList {
         guard listCurrentIndex >= 0 else { return nil }
         let task = taskList[listCurrentIndex]
         listCurrentIndex -= 1
-        print("listCurrentIndex: \(listCurrentIndex)")
+        //print("listCurrentIndex: \(listCurrentIndex)")
         switch task {
         case .Band(let taskBand):
             let bandIndex = taskBand.index
@@ -99,3 +102,4 @@ class TaskList {
         
     }
 }
+*/

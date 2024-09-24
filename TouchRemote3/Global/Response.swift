@@ -7,9 +7,6 @@
 
 import Foundation
 
-var allResponse: [Response] = [Response(), Response(), Response(), Response(), Response(), Response(), Response(), Response()]
-var rootResponse = ResponseParent(allResponse)
-
 protocol ResponseChildDelegate: Response {
     func childDidUpdate()
 }
@@ -35,6 +32,9 @@ class ResponseParent: Response, ResponseChildDelegate {
         if count == 2 {
             child1 = array[0]
             child2 = array[1]
+        } else if count < 2 {
+            child1 = Response()
+            child2 = Response()
         } else {
             let midIndex = count/2
             child1 = ResponseParent(Array(array[0..<midIndex]))

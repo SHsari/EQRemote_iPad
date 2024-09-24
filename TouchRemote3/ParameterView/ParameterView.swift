@@ -17,17 +17,30 @@ let typePViewDict: [FilterType : String] = [
 ]
 
 protocol ParameterView: UIView {
-    func setViewActive(_ isActive: Bool)
-    var index: Int? { get set }
+    var index: Int { get set }
     var delegate: PViewDelegate? { get set }
-    func setSliderByPreset(_ value: Double)
-    func setMenuByPreset(_ value: Int)
+    func initialize(_ position: XYZPosition, _ index: Int, _ delegate: PViewDelegate)
+    func updateXLabel()
+    func updateYLabel()
+    func updateZLabel()
+    func updateSlider(_ z: Double)
+    func setViewActive(_ isActive: Bool)
+}
+
+class PViewClass: UIStackView {
+    var index: Int = -1
+    var delegate: PViewDelegate?
+    internal var bind = XYZPosition()
+    func initialize(_ position: XYZPosition, _ index: Int, _ delegate: PViewDelegate) {
+        self.bind = position
+        self.index = index
+        self.delegate = delegate
+    }
 }
 
 protocol PViewDelegate: MainViewController {
     func pViewSliderMoved(_ index: Int, _ value: Double)
     func pViewSliderTouchEnded(_ index: Int)
-    func pViewMenuChanged(_ type: Slope)
 }
 
 

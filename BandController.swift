@@ -4,171 +4,78 @@
 //
 //  Created by Seokhyun Song on 9/18/24.
 //
-/*
+
 import Foundation
 
-class BandParameterCenter: RespCalculatorDelegate {
-    
-    var valueBinder: ValueSwitcher
-    var filter: EQfilter
-    private var response: ResponseLeaf
-    
-    var normX: Double
-    var normY: Double
-    var normZ: Double
-    
-    var bindX: Double
-    var bindY: Double
-    var bindZ: Double
-    
-    var type: FilterType
-    var isOn: Bool
-    
-    var delegatePView: PCenterDelegate_PView?
-    var delegateTouchMeDot: PCenterDelegate_TouchMeDot?
-    var delegateGraphLayer: PCenterDelegate_GraphLayer?
-    
-    func setNormXY(_ normX: Double, _ normY: Double) {
-        self.normX = normX
-        self.normY = normY
-        bindX = valueBinder.getBindX(normX)
-        bindY = valueBinder.getBindY(normY)
-        delegatePView?.setXYLabel(bindX, bindY)
-        calculator.setX()
-        calculator.setY()
-        calculator.updateResponse()
-        delegateGraphLayer?.updateGraph()
-    }
-    
-    func setNormX(_ normX: Double) {
-        self.normX = normX
-        bindX = valueBinder.getBindX(normX)
-        calculator.setX()
-        calculator.updateResponse()
-        delegateGraphLayer?.updateGraph()
-    }
-    
-    func setNormY(_ normY: Double) {
-        self.normY = normY
-        bindY = valueBinder.getBindY(normY)
-        calculator.setY()
-        calculator.updateResponse()
-        delegateGraphLayer?.updateGraph()
-    }
-    
-    func setNormZ(_ normZ: Double) {
-        self.normZ = normZ
-        bindZ = valueBinder.getBindZ(normZ)
-        calculator.setZ()
-        calculator.updateResponse()
-        delegateGraphLayer?.updateGraph()
-    }
-    
-    func setBindX(_ bindX : Double) {
-        self.bindX = bindX
-        normX = valueBinder.getNormX(bindX)
-        calculator.setX()
-        calculator.updateResponse()
-        delegateGraphLayer?.updateGraph()
-    }
-    
-    func setBindY(_ bindY : Double) {
-        self.bindY = bindY
-        normY = valueBinder.getNormY(bindY)
-        calculator.setY()
-        calculator.updateResponse()
-        delegateGraphLayer?.updateGraph()
-    }
 
-    func setBindZ(_ bindZ : Double) {
-        self.bindZ = bindZ
-        normZ = valueBinder.getNormZ(bindZ)
-        calculator.setZ()
-        calculator.updateResponse()
-        delegateGraphLayer?.updateGraph()
-    }
-    
-    func setOnOff(at index: Int, isOn: Bool) {
-        self.isOn = isOn
-        delegatePView?.setViewActive(isOn)
-        delegateTouchMeDot?.setDotActive(isOn)
-        if !isOn { response.setResponseDefault() }
-        else { calculator.updateResponse() }
-    }
-    
-    func getBandInfo() -> OneBand {
-        let position = XYZPosition(x: normX, y: normY, z: normZ)
-        return OneBand(type, position, isOn)
-    }
-    
-    init(_ band: OneBand, _ response: ResponseLeaf) {
-        self.index = index
-        let position = band.position
-        isOn = band.isOn
-        type = band.type
-        valueBinder = BandParameterCenter.typeValueBinderDict[type]!
-        normX = position.x
-        normY = position.y
-        normZ = position.z
-        bindX = valueBinder.getBindX(normX)
-        bindY = valueBinder.getBindY(normY)
-        bindZ = valueBinder.getBindZ(normZ)
-        self.response = response
-        calculator = BandParameterCenter.typeCalculatorDict[type]?(response) ?? Peak(response)
-        calculator.delegateInitializer(self)
-    }
-    
-    static let typeValueBinderDict: [FilterType : ValueSwitcher] = [
-        .peak: PeakSwitcher(),
-        .lowPass: PassSwitcher(),
-        .highPass: PassSwitcher(),
-        .lowShelf: ShelfSwitcher(),
-        .highShelf: ShelfSwitcher()
-    ]
-    static let typeCalculatorDict: [FilterType : ((ResponseLeaf) -> ResponseCalculator)] = [
-        .peak: {response in Peak(response)},
-        .lowPass: {response in LowPass(response)},
-        .highPass: {response in HighPass(response)},
-        .lowShelf: {response in LowShelf(response)},
-        .highShelf: {response in HighShelf(response)}
+protocol ParameterStoragePrtc {
+    var norm: XYZPosition { get set }
+    var bind: XYZPosition { get set }
+    func setBindX(_ x: Double)
+    func setBindY(_ y: Double)
+    func setBindZ(_ z: Double)
+    func setNormX(_ x: Double)
+    func setNormY(_ y: Double)
+    func setNormZ(_ z: Double)
+    func setPositions(_ norm: XYZPosition, _ bind: XYZPosition)
+}
+
+class ParameterBinder {
+    private init() {}
+    static let globalBinderDict: [FilterType : ParameterStoragePrtc] = [
+        .peak: PeakStorage(),
+        .lowPass: PassStorage(),
+        .highPass: PassStorage(),
+        .lowShelf: ShelfStorage(),
+        .highShelf: ShelfStorage()
     ]
 }
 
-protocol ValueSwitcher {
-    func getBindX(_ normX: Double) -> Double
-    func getBindY(_ normY: Double) -> Double
-    func getBindZ(_ normZ: Double) -> Double
-    func getNormX(_ bindX: Double) -> Double
-    func getNormY(_ bindY: Double) -> Double
-    func getNormZ(_ bindZ: Double) -> Double
+
+class PeakStorage: ParameterStoragePrtc {
+    
+    var norm: XYZPosition = XYZPosition()
+    var bind: XYZPosition = XYZPosition()
+    func setNormX(_ x: Double) { norm.x = x; bind.x = Calculate.frequency(x) }
+    func setNormY(_ y: Double) { norm.y = y; bind.y = Calculate.gain(y) }
+    func setNormZ(_ z: Double) { norm.z = z; bind.z = Calculate.peakQ(z) }
+    func setBindX(_ x: Double) { bind.x = x; norm.x = Calculate.normX(x) }
+    func setBindY(_ y: Double) { bind.y = y; norm.y = Calculate.normYwith(gain: y) }
+    func setBindZ(_ z: Double) { bind.z = z; norm.z = Calculate.normZwith(peakQ: z) }
+    func setPositions(_ norm: XYZPosition, _ bind: XYZPosition) {
+        self.bind = bind; self.norm = norm;
+        setNormX(norm.x); setNormY(norm.y); setNormZ(norm.z);
+    }
 }
 
-class PeakSwitcher: ValueSwitcher {
-    func getBindX(_ normX: Double) -> Double { return Calculate.frequency(normX) }
-    func getBindY(_ normY: Double) -> Double { return Calculate.gain(normY) }
-    func getBindZ(_ normZ: Double) -> Double { return Calculate.peakQ(normZ) }
-    func getNormX(_ bindX: Double) -> Double { return Calculate.normX(bindX) }
-    func getNormY(_ bindY: Double) -> Double { return Calculate.normYwith(gain: bindY) }
-    func getNormZ(_ bindZ: Double) -> Double { return Calculate.normZwith(peakQ: bindZ) }
+class PassStorage: ParameterStoragePrtc {
+
+    var norm: XYZPosition = XYZPosition()
+    var bind: XYZPosition = XYZPosition()
+    func setNormX(_ x: Double) { norm.x = x; bind.x = Calculate.frequency(x) }
+    func setNormY(_ y: Double) { norm.y = y; bind.y = Calculate.passQ(y) }
+    func setNormZ(_ z: Double) { }
+    func setBindX(_ x: Double) { bind.x = x; norm.x = Calculate.normX(x) }
+    func setBindY(_ y: Double) { bind.y = y; norm.y = Calculate.normYwith(passQ: y) }
+    func setBindZ(_ z: Double) { }
+    func setPositions(_ norm: XYZPosition, _ bind: XYZPosition) {
+        self.bind = bind; self.norm = norm;
+        setNormX(norm.x); setNormY(norm.y); setNormZ(norm.z);
+    }
 }
 
-class PassSwitcher: ValueSwitcher {
-    func getBindX(_ normX: Double) -> Double { return Calculate.frequency(normX) }
-    func getBindY(_ normY: Double) -> Double { return Calculate.passQ(normY) }
-    func getBindZ(_ normZ: Double) -> Double { return 0 }
-    func getNormX(_ bindX: Double) -> Double { return Calculate.normX(bindX) }
-    func getNormY(_ bindY: Double) -> Double { return Calculate.normYwith(passQ: bindY) }
-    func getNormZ(_ bindZ: Double) -> Double { return 0 }
+class ShelfStorage: ParameterStoragePrtc {
+
+    var norm: XYZPosition = XYZPosition()
+    var bind: XYZPosition = XYZPosition()
+    func setNormX(_ x: Double) { norm.x = x; bind.x = Calculate.frequency(x) }
+    func setNormY(_ y: Double) { norm.y = y; bind.y = Calculate.gain(y) }
+    func setNormZ(_ z: Double) { norm.z = z; bind.z = Calculate.shelfQ(z) }
+    func setBindX(_ x: Double) { bind.x = x; norm.x = Calculate.normX(x) }
+    func setBindY(_ y: Double) { bind.y = y; norm.y = Calculate.normYwith(gain: y) }
+    func setBindZ(_ z: Double) { bind.z = z; norm.z = Calculate.normZwith(shelfQ: z) }
+    func setPositions(_ norm: XYZPosition, _ bind: XYZPosition) {
+        self.bind = bind; self.norm = norm;
+        setNormX(norm.x); setNormY(norm.y); setNormZ(norm.z);
+    }
 }
-
-class ShelfSwitcher: ValueSwitcher {
-    func getBindX(_ normX: Double) -> Double { return Calculate.frequency(normX) }
-    func getBindY(_ normY: Double) -> Double { return Calculate.gain(normY) }
-    func getBindZ(_ normZ: Double) -> Double { return Calculate.shelfQ(normZ) }
-    func getNormX(_ bindX: Double) -> Double { return Calculate.normX(bindX) }
-    func getNormY(_ bindY: Double) -> Double { return Calculate.normYwith(gain: bindY) }
-    func getNormZ(_ bindZ: Double) -> Double { return Calculate.normZwith(peakQ: bindZ) }
-}*/
-
-
-

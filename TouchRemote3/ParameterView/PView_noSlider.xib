@@ -82,8 +82,8 @@
                 <constraint firstItem="5b6-ps-ZGr" firstAttribute="trailing" secondItem="MMO-jW-n2d" secondAttribute="trailing" id="xDE-56-UC8"/>
             </constraints>
             <connections>
-                <outlet property="QLabel" destination="8cN-s1-HzT" id="gXs-pA-PI3"/>
-                <outlet property="freqLabel" destination="jYJ-oG-zUt" id="Y91-gs-pwW"/>
+                <outlet property="QLabel" destination="8cN-s1-HzT" id="vQZ-PN-x9T"/>
+                <outlet property="freqLabel" destination="jYJ-oG-zUt" id="LOz-ez-LJp"/>
             </connections>
             <point key="canvasLocation" x="-1057.9225352112676" y="-1524.375"/>
         </stackView>

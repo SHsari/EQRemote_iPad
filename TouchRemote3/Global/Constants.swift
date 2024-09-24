@@ -14,7 +14,7 @@ let sectionSize = numberOfBands/2
 let defaultXPosition = [0.2, 0.4, 0.6, 0.8, 0.15, 0.35, 0.65, 0.85]
 let defaultFilterType: [FilterType] = [.peak, .peak, .peak, .peak, .lowShelf, .peak, .peak, .highShelf]
 let factoryPreset = factoryPreset_()
-let factoryPosition = factoryPreset.bands.map{ $0.getXY() }
+let factoryPosition = factoryPreset_().bands.map{ $0.position }
 
 func freqToNormPosition(freq: Int) {
     

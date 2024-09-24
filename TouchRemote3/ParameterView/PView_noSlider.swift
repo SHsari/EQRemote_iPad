@@ -8,32 +8,23 @@
 import Foundation
 import UIKit
 
-class PView_noSlider: UIStackView, ParameterView, EQFilterDelegate {
+class PView_noSlider: PViewClass, ParameterView {
+    
     @IBOutlet weak var freqLabel: UILabel!
     @IBOutlet weak var QLabel: UILabel!
-    
-    var index: Int?
-    
-    var delegate: PViewDelegate?
-    
+
     func setViewActive(_ isActive: Bool) {
         self.alpha = isActive ? 1.0 : 0.5
     }
 
-    func setMenuByPreset(_ value: Int) {
-        
-    }
-    func setSliderByPreset(_ value: Double) {
-    
+    func updateXLabel() {
+        freqLabel.text = String(format: "%.0f", bind.x)
     }
     
-    func setXLabel(x: Double) {
-        freqLabel.text = String(format: "%.0f", x)
+    func updateYLabel() {
+        QLabel.text = String(format: "%.2f", bind.y)
     }
     
-    func setYLabel(y: Double) {
-        QLabel.text = String(format: "%.2f", y)
-    }
-    
-    func setZLabel(z: Double) {}
+    func updateZLabel() {}
+    func updateSlider(_ z: Double) {}
 }

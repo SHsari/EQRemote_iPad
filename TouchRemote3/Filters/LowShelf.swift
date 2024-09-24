@@ -15,33 +15,57 @@ class LowShelf: EQFilterClass, EQFilterPrtc {
     private lazy var w0 = pi2 * freq
     private lazy var w02 = w0^2
     
-    required override init(_ index: Int) {
-        super.init(index)
-        setX()
-        setY()
-        setZ()
+    var freq: Double { bind.x }
+    var gain: Double { bind.y }
+    var Q: Double { bind.z }
+    
+    func initialize(_ response: Response, _ norm: XYZPosition, _ bind: XYZPosition) {
+        self.response = response
+        self.bind = bind; self.norm = norm;
+        setNormX(norm.x); setNormY(norm.y); setNormZ(norm.z);
         updateResponse()
     }
     
-    func setX() {
-        self.freq = Calculate.frequency(xyz.x)
-        delegate?.setXLabel(x: freq)
+    func setNormX(_ x: Double) {
+        norm.x = x
+        bind.x = Calculate.frequency(x)
+        xDidSet()
+    }
+    
+    func setNormY(_ y: Double) {
+        norm.y = y
+        bind.y = Calculate.gain(y)
+        yDidSet()
+    }
+    
+    func setNormZ(_ z: Double) {
+        norm.z = z
+        bind.z = Calculate.shelfQ(z)
+    }
+    func setBindX(_ x: Double) {
+        bind.x = x
+        norm.x = Calculate.normX(x)
+        xDidSet()
+    }
+    func setBindY(_ y: Double) {
+        bind.y = y
+        norm.y = Calculate.normYwith(gain: y)
+        yDidSet()
+    }
+    func setBindZ(_ z: Double) {
+        bind.z = z
+        norm.z = Calculate.normZwith(shelfQ: z)
+    }
+    
+    private func xDidSet() {
         w0 = pi2 * freq
         w02 = w0^2
     }
     
-    func setY() {
-        self.gain = Calculate.gain(xyz.y)
-        delegate?.setYLabel(y: gain)
+    private func yDidSet() {
         A = pow(10, gain/40)
         sqrtA = sqrt(A)
     }
-    
-    func setZ() {
-        self.Q = Calculate.shelfQ(xyz.z)
-        self.delegate?.setZLabel(z: self.Q)
-    }
-    
     
     func updateResponse() {
         let numeReal = A*w02 - omega2
