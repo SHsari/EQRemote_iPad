@@ -19,9 +19,8 @@ class LowShelf: EQFilterClass, EQFilterPrtc {
     var gain: Double { bind.y }
     var Q: Double { bind.z }
     
-    func initialize(_ response: Response, _ norm: XYZPosition, _ bind: XYZPosition) {
-        self.response = response
-        self.bind = bind; self.norm = norm;
+    override func initialize(_ response: Response, _ norm: XYZPosition, _ bind: XYZPosition) {
+        super.initialize(response, norm, bind)
         setNormX(norm.x); setNormY(norm.y); setNormZ(norm.z);
         updateResponse()
     }
@@ -74,7 +73,6 @@ class LowShelf: EQFilterClass, EQFilterPrtc {
         let numerator = magnitudeComplex(numeReal, imag)
         let denominator = magnitudeComplex(denoReal, imag)
         self.response.dB = magnitudeTodB( A * numerator/denominator )
-        response.responseDidUpdate()
     }
 
 }

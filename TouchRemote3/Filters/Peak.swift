@@ -18,9 +18,8 @@ class Peak: EQFilterClass, EQFilterPrtc {
     private var gain: Double { bind.y }
     private var Q: Double { bind.z }
     
-    func initialize(_ response: Response, _ norm: XYZPosition, _ bind: XYZPosition) {
-        self.response = response
-        self.bind = bind; self.norm = norm;
+    override func initialize(_ response: Response, _ norm: XYZPosition, _ bind: XYZPosition) {
+        super.initialize(response, norm, bind)
         setNormX(norm.x); setNormY(norm.y); setNormZ(norm.z);
         updateResponse()
     }
@@ -67,7 +66,6 @@ class Peak: EQFilterClass, EQFilterPrtc {
         let numerator = magnitudeComplex(w02_w2, w0wDivQ*A)
         let denominator = magnitudeComplex(w02_w2, w0wDivQ/A)
         response.dB = magnitudeTodB( numerator / denominator )
-        response.responseDidUpdate()
     }
 
 }

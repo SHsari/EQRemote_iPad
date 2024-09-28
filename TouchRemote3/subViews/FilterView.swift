@@ -110,7 +110,7 @@ class FilterView: UIView {
 }
 
 extension FilterView {
-    func touchesBegin(_ index: Int, _ response: Response) {
+    func setActiveIndex(_ index: Int, _ response: Response) {
         activeIndex = index
         bringActiveLayerToFront()
         activeResponse = response

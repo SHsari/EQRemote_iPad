@@ -26,11 +26,18 @@ class EQFilterClass {
     var bind = XYZPosition()
     var response = Response()
     
+    func initialize(_ response: Response, _ norm: XYZPosition, _ bind: XYZPosition) {
+        self.response = response
+        self.norm = norm
+        self.bind = bind
+    }
+    
+    
     static let typeDict: [FilterType : () -> EQFilterPrtc] = [
         .peak: { Peak() },
         .lowPass: { LowPass() },
         .highPass: { HighPass() },
-        .lowShelf: { LowShelf () },
+        .lowShelf: { LowShelf() },
         .highShelf: { HighShelf() },
     ]
 }

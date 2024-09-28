@@ -29,7 +29,7 @@ protocol ParameterView: UIView {
 
 class PViewClass: UIStackView {
     var index: Int = -1
-    var delegate: PViewDelegate?
+    weak var delegate: PViewDelegate?
     internal var bind = XYZPosition()
     func initialize(_ position: XYZPosition, _ index: Int, _ delegate: PViewDelegate) {
         self.bind = position
@@ -39,8 +39,11 @@ class PViewClass: UIStackView {
 }
 
 protocol PViewDelegate: MainViewController {
-    func pViewSliderMoved(_ index: Int, _ value: Double)
-    func pViewSliderTouchEnded(_ index: Int)
+    func sliderTouchesBegan(_ index: Int)
+    func sliderMoved(_ value: Double)
+    func sliderTouchesEnded()
+    func xLocktoggled(at index: Int)
+    func yLocktoggled(at index: Int)
 }
 
 

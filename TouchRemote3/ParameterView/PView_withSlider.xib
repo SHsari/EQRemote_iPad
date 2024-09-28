@@ -3,6 +3,7 @@
     <device id="retina4_0" orientation="landscape" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -19,22 +20,34 @@
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="X0r-kC-oXa">
                             <rect key="frame" x="0.0" y="0.0" width="163" height="76"/>
                             <subviews>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bd8-p2-FxN">
-                                    <rect key="frame" x="40.5" y="28" width="41.5" height="20.5"/>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="20000" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bd8-p2-FxN">
+                                    <rect key="frame" x="26" y="28" width="51" height="20.5"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                     <nil key="textColor"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hz" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6Ni-kc-MtV">
-                                    <rect key="frame" x="92" y="29" width="19" height="18"/>
+                                    <rect key="frame" x="87" y="29" width="19" height="18"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                     <nil key="textColor"/>
                                     <nil key="highlightedColor"/>
                                 </label>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aRu-YY-3Cb" customClass="LockButton" customModule="TouchRemote3" customModuleProvider="target">
+                                    <rect key="frame" x="106" y="21" width="42.5" height="34"/>
+                                    <state key="normal" title="Button"/>
+                                    <buttonConfiguration key="configuration" style="plain">
+                                        <imageReference key="image" image="lock.fill" catalog="system" symbolScale="medium"/>
+                                    </buttonConfiguration>
+                                    <connections>
+                                        <action selector="xLockToggled:" destination="Jxy-Ed-QM2" eventType="touchUpInside" id="U6c-Dp-Zsf"/>
+                                    </connections>
+                                </button>
                             </subviews>
                             <constraints>
-                                <constraint firstItem="6Ni-kc-MtV" firstAttribute="centerX" secondItem="X0r-kC-oXa" secondAttribute="centerX" constant="20" id="CGO-3R-HXo"/>
+                                <constraint firstItem="aRu-YY-3Cb" firstAttribute="centerY" secondItem="X0r-kC-oXa" secondAttribute="centerY" id="5LF-KO-3gc"/>
+                                <constraint firstItem="6Ni-kc-MtV" firstAttribute="centerX" secondItem="X0r-kC-oXa" secondAttribute="centerX" constant="15" id="CGO-3R-HXo"/>
                                 <constraint firstItem="6Ni-kc-MtV" firstAttribute="centerY" secondItem="X0r-kC-oXa" secondAttribute="centerY" id="Ftl-Oj-Gri"/>
+                                <constraint firstItem="aRu-YY-3Cb" firstAttribute="leading" secondItem="6Ni-kc-MtV" secondAttribute="trailing" id="ZCv-gd-7kh"/>
                                 <constraint firstItem="bd8-p2-FxN" firstAttribute="centerY" secondItem="X0r-kC-oXa" secondAttribute="centerY" id="vvb-f5-dqB"/>
                                 <constraint firstItem="6Ni-kc-MtV" firstAttribute="leading" secondItem="bd8-p2-FxN" secondAttribute="trailing" constant="10" id="yc3-bU-FFc"/>
                             </constraints>
@@ -42,21 +55,33 @@
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pUZ-pt-HtA">
                             <rect key="frame" x="163" y="0.0" width="163" height="76"/>
                             <subviews>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="enU-wm-Yvc">
-                                    <rect key="frame" x="40.5" y="28" width="41.5" height="20.5"/>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-18.00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="enU-wm-Yvc">
+                                    <rect key="frame" x="27.5" y="28" width="49.5" height="20.5"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                     <nil key="textColor"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="dB" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GgF-lF-ENF">
-                                    <rect key="frame" x="92" y="29" width="19" height="18"/>
+                                    <rect key="frame" x="87" y="29" width="19" height="18"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                     <nil key="textColor"/>
                                     <nil key="highlightedColor"/>
                                 </label>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SeP-uS-CVb" customClass="LockButton" customModule="TouchRemote3" customModuleProvider="target">
+                                    <rect key="frame" x="106" y="21" width="42.5" height="34"/>
+                                    <state key="normal" title="Button"/>
+                                    <buttonConfiguration key="configuration" style="plain">
+                                        <imageReference key="image" image="lock.fill" catalog="system" symbolScale="medium"/>
+                                    </buttonConfiguration>
+                                    <connections>
+                                        <action selector="yLockToggled:" destination="Jxy-Ed-QM2" eventType="touchUpInside" id="vJQ-cn-ugk"/>
+                                    </connections>
+                                </button>
                             </subviews>
                             <constraints>
-                                <constraint firstItem="GgF-lF-ENF" firstAttribute="centerX" secondItem="pUZ-pt-HtA" secondAttribute="centerX" constant="20" id="DiY-49-cqU"/>
+                                <constraint firstItem="SeP-uS-CVb" firstAttribute="leading" secondItem="GgF-lF-ENF" secondAttribute="trailing" id="13H-vD-3sv"/>
+                                <constraint firstItem="SeP-uS-CVb" firstAttribute="centerY" secondItem="pUZ-pt-HtA" secondAttribute="centerY" id="CVM-6C-fuA"/>
+                                <constraint firstItem="GgF-lF-ENF" firstAttribute="centerX" secondItem="pUZ-pt-HtA" secondAttribute="centerX" constant="15" id="DiY-49-cqU"/>
                                 <constraint firstItem="GgF-lF-ENF" firstAttribute="leading" secondItem="enU-wm-Yvc" secondAttribute="trailing" constant="10" id="EMK-J3-IBY"/>
                                 <constraint firstItem="GgF-lF-ENF" firstAttribute="centerY" secondItem="pUZ-pt-HtA" secondAttribute="centerY" id="Xzl-ZK-GPj"/>
                                 <constraint firstItem="enU-wm-Yvc" firstAttribute="centerY" secondItem="pUZ-pt-HtA" secondAttribute="centerY" id="hLQ-oZ-B9g"/>
@@ -113,4 +138,7 @@
             <point key="canvasLocation" x="-1120.7746478873239" y="-2833.125"/>
         </stackView>
     </objects>
+    <resources>
+        <image name="lock.fill" catalog="system" width="125" height="128"/>
+    </resources>
 </document>

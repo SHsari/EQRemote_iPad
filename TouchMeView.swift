@@ -17,12 +17,12 @@ class TouchMeView: UIView {
     
     weak var delegate: TouchMeViewDelegate?
 
-    private var dots: [MovingDot] = []
-    private var allDots: [MovingDot] = []
+    private var dots: [MovingDotPrtc] = []
+    private var allDots: [MovingDotPrtc] = []
     private var dx: Double?
     private var dy: Double?
     
-    private var activeDot: MovingDot?
+    private var activeDot: MovingDotPrtc?
     private var activeDotIndex: Int?
     private let greatestDistance = CGFloat(150)
     private var offset: Int = 0
@@ -48,22 +48,7 @@ class TouchMeView: UIView {
         setSectionActive(0)
     }
 
-    func setSectionActive(_ section: Int) {
-        for (i, dot) in allDots.enumerated() {
-            dot.opacity = 0.2; dot.zPosition = CGFloat(i % 4)
-        }
-        self.offset = section*sectionSize
-        dots = Array(allDots[offset..<offset+sectionSize])
-        dots.forEach{ $0.opacity = 1.0; $0.zPosition += 10 }
-    }
 
-    func setDotActive(_ index: Int, isActive: Bool) {
-        allDots[index].isHidden = !isActive
-    }
-
-    func setDotByPreset(index: Int, value: XYPosition) {
-        allDots[index].position = getPositionFromNormValues(value)
-    }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let touch = touches.first {
@@ -75,8 +60,7 @@ class TouchMeView: UIView {
     }
     
     private func setClosestDot(_ initPoint: CGPoint) {
-        // 가장 가까운 도트 찾기
-        let closestDotInfo = dots.enumerated().compactMap{ (index , dot) -> (element: MovingDot, index: Int, distance: CGFloat)? in
+        let closestDotInfo = dots.enumerated().compactMap{ (index , dot) -> (element: MovingDotPrtc, index: Int, distance: CGFloat)? in
             guard !dot.isHidden else {return nil}
             let distance = dot.getDistance(from: initPoint)
             if distance < greatestDistance {
@@ -127,5 +111,38 @@ class TouchMeView: UIView {
         point.x = normP.x * bounds.width
         point.y = (1 - normP.y) * bounds.height
         return point
+    }
+}
+
+extension TouchMeView {
+    func setSectionActive(_ section: Int) {
+        for (i, dot) in allDots.enumerated() {
+            dot.opacity = 0.2; dot.zPosition = CGFloat(i % 4)
+        }
+        self.offset = section*sectionSize
+        dots = Array(allDots[offset..<offset+sectionSize])
+        dots.forEach{ $0.opacity = 1.0; $0.zPosition += 10 }
+    }
+
+    func setDotActive(_ index: Int, isActive: Bool) {
+        allDots[index].isHidden = !isActive
+    }
+    
+    func xLockToggled(at index: Int) {
+        let dot = allDots[index].xLockToggled()
+        layer.addSublayer(dot)
+        allDots[index] = dot
+        dots[index-offset] = dot
+    }
+    
+    func yLockToggled(at index: Int) {
+        let dot = allDots[index].yLockToggled()
+        layer.addSublayer(dot)
+        allDots[index] = dot
+        dots[index-offset] = dot
+    }
+
+    func setDotByPreset(index: Int, value: XYPosition) {
+        allDots[index].position = getPositionFromNormValues(value)
     }
 }

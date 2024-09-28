@@ -8,11 +8,19 @@
 import Foundation
 import UIKit
 
-class PView_noSlider: PViewClass, ParameterView {
+class PView_noSlider
+: PViewClass, ParameterView {
     
     @IBOutlet weak var freqLabel: UILabel!
     @IBOutlet weak var QLabel: UILabel!
 
+    @IBAction func xLockToggled(_ sender: LockButton) {
+        delegate?.xLocktoggled(at: index)
+    }
+    @IBAction func yLockToggled(_ sender: LockButton) {
+        delegate?.yLocktoggled(at: index)
+    }
+    
     func setViewActive(_ isActive: Bool) {
         self.alpha = isActive ? 1.0 : 0.5
     }

@@ -15,15 +15,22 @@ class PView_withSlider: PViewClass, ParameterView {
     @IBOutlet weak var QLabel: UILabel!
     @IBOutlet weak var QSlider: UISlider!
     
+    @IBAction func xLockToggled(_ sender: LockButton) {
+        delegate?.xLocktoggled(at: self.index)
+    }
+    @IBAction func yLockToggled(_ sender: LockButton) {
+        delegate?.yLocktoggled(at: self.index)
+    }
+    
     @IBAction func sliderTouchBegin(_ sender: UISlider) {
-        delegate?.pViewSliderTouchBegin(index)
+        delegate?.sliderTouchesBegan(index)
     }
     
     @IBAction func sliderTouchEnd(_ sender: UISlider) {
-        delegate?.pViewSliderTouchEnded(index)
+        delegate?.sliderTouchesEnded()
     }
     @IBAction func QSliderMoved(_ sender: UISlider) {
-        delegate?.pViewSliderMoved(index, Double(sender.value))
+        delegate?.sliderMoved(Double(sender.value))
         updateZLabel()
     }
     

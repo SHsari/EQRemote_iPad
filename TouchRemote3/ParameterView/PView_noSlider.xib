@@ -3,6 +3,7 @@
     <device id="retina4_0" orientation="landscape" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -20,7 +21,7 @@
                             <rect key="frame" x="0.0" y="0.0" width="135.5" height="108"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="20134" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jYJ-oG-zUt">
-                                    <rect key="frame" x="21" y="43.5" width="54" height="21.5"/>
+                                    <rect key="frame" x="14.5" y="43.5" width="54" height="21.5"/>
                                     <constraints>
                                         <constraint firstAttribute="width" constant="54" id="PC9-AL-tWa"/>
                                     </constraints>
@@ -29,16 +30,28 @@
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="Hz" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JYI-oe-BVR">
-                                    <rect key="frame" x="85" y="45" width="19" height="18"/>
+                                    <rect key="frame" x="78.5" y="45" width="19" height="18"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                     <nil key="textColor"/>
                                     <nil key="highlightedColor"/>
                                 </label>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LiA-Nd-QLL" customClass="LockButton" customModule="TouchRemote3" customModuleProvider="target">
+                                    <rect key="frame" x="97.5" y="37" width="42.5" height="34"/>
+                                    <state key="normal" title="Button"/>
+                                    <buttonConfiguration key="configuration" style="plain">
+                                        <imageReference key="image" image="lock.fill" catalog="system" symbolScale="medium"/>
+                                    </buttonConfiguration>
+                                    <connections>
+                                        <action selector="xLockToggled:" destination="8sd-dH-r7o" eventType="touchUpInside" id="DTo-1U-URt"/>
+                                    </connections>
+                                </button>
                             </subviews>
                             <constraints>
-                                <constraint firstItem="jYJ-oG-zUt" firstAttribute="centerX" secondItem="aG6-Lh-F1b" secondAttribute="centerX" constant="-20" id="5Jw-j1-6Cs"/>
                                 <constraint firstItem="jYJ-oG-zUt" firstAttribute="centerY" secondItem="aG6-Lh-F1b" secondAttribute="centerY" id="Fb4-oY-DMK"/>
+                                <constraint firstItem="JYI-oe-BVR" firstAttribute="centerX" secondItem="aG6-Lh-F1b" secondAttribute="centerX" constant="20" id="TO8-Dk-J32"/>
+                                <constraint firstItem="LiA-Nd-QLL" firstAttribute="centerY" secondItem="aG6-Lh-F1b" secondAttribute="centerY" id="Y8T-Rm-5v3"/>
                                 <constraint firstItem="JYI-oe-BVR" firstAttribute="centerY" secondItem="aG6-Lh-F1b" secondAttribute="centerY" id="e0b-kd-OWv"/>
+                                <constraint firstItem="LiA-Nd-QLL" firstAttribute="leading" secondItem="JYI-oe-BVR" secondAttribute="trailing" id="l7x-Rw-AHe"/>
                                 <constraint firstItem="JYI-oe-BVR" firstAttribute="leading" secondItem="jYJ-oG-zUt" secondAttribute="trailing" constant="10" id="ueC-sf-431"/>
                             </constraints>
                         </view>
@@ -46,7 +59,7 @@
                             <rect key="frame" x="135.5" y="0.0" width="135.5" height="108"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="32.00" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8cN-s1-HzT" userLabel="Q Label">
-                                    <rect key="frame" x="63" y="43.5" width="50" height="21.5"/>
+                                    <rect key="frame" x="43" y="43.5" width="50" height="21.5"/>
                                     <constraints>
                                         <constraint firstAttribute="width" constant="50" id="CSR-ys-m9y"/>
                                     </constraints>
@@ -55,15 +68,28 @@
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="Q" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fz7-ip-xZV">
-                                    <rect key="frame" x="42" y="45.5" width="11" height="17"/>
+                                    <rect key="frame" x="20" y="45.5" width="13" height="17"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                     <nil key="textColor"/>
                                     <nil key="highlightedColor"/>
                                 </label>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="k6k-6z-J0L" customClass="LockButton" customModule="TouchRemote3" customModuleProvider="target">
+                                    <rect key="frame" x="93" y="37" width="42.5" height="34"/>
+                                    <state key="normal" title="Button"/>
+                                    <buttonConfiguration key="configuration" style="plain">
+                                        <imageReference key="image" image="lock.fill" catalog="system" symbolScale="medium"/>
+                                    </buttonConfiguration>
+                                    <connections>
+                                        <action selector="yLockToggled:" destination="8sd-dH-r7o" eventType="touchUpInside" id="w2r-y2-Qyy"/>
+                                    </connections>
+                                </button>
                             </subviews>
                             <constraints>
                                 <constraint firstItem="Fz7-ip-xZV" firstAttribute="centerY" secondItem="XdN-RO-JD3" secondAttribute="centerY" id="4eg-yh-nRp"/>
-                                <constraint firstItem="8cN-s1-HzT" firstAttribute="centerX" secondItem="XdN-RO-JD3" secondAttribute="centerX" constant="20" id="Une-VW-idJ"/>
+                                <constraint firstItem="8cN-s1-HzT" firstAttribute="centerX" secondItem="XdN-RO-JD3" secondAttribute="centerX" id="4uC-WX-4oO"/>
+                                <constraint firstItem="k6k-6z-J0L" firstAttribute="centerY" secondItem="XdN-RO-JD3" secondAttribute="centerY" id="GkE-yO-nNE"/>
+                                <constraint firstItem="k6k-6z-J0L" firstAttribute="leading" secondItem="8cN-s1-HzT" secondAttribute="trailing" id="Z48-Aw-zYe"/>
+                                <constraint firstItem="Fz7-ip-xZV" firstAttribute="leading" secondItem="XdN-RO-JD3" secondAttribute="leading" constant="20" symbolic="YES" id="f1K-1V-iXD"/>
                                 <constraint firstItem="8cN-s1-HzT" firstAttribute="leading" secondItem="Fz7-ip-xZV" secondAttribute="trailing" constant="10" id="oo1-DP-Nbj"/>
                                 <constraint firstItem="8cN-s1-HzT" firstAttribute="centerY" secondItem="XdN-RO-JD3" secondAttribute="centerY" id="tir-5S-Fya"/>
                             </constraints>
@@ -82,10 +108,13 @@
                 <constraint firstItem="5b6-ps-ZGr" firstAttribute="trailing" secondItem="MMO-jW-n2d" secondAttribute="trailing" id="xDE-56-UC8"/>
             </constraints>
             <connections>
-                <outlet property="QLabel" destination="8cN-s1-HzT" id="vQZ-PN-x9T"/>
-                <outlet property="freqLabel" destination="jYJ-oG-zUt" id="LOz-ez-LJp"/>
+                <outlet property="QLabel" destination="8cN-s1-HzT" id="jJh-do-0j6"/>
+                <outlet property="freqLabel" destination="jYJ-oG-zUt" id="Kpd-wb-gq0"/>
             </connections>
             <point key="canvasLocation" x="-1057.9225352112676" y="-1524.375"/>
         </stackView>
     </objects>
+    <resources>
+        <image name="lock.fill" catalog="system" width="125" height="128"/>
+    </resources>
 </document>

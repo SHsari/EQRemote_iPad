@@ -16,9 +16,8 @@ class LowPass: EQFilterClass, EQFilterPrtc {
     var freq: Double { bind.x }
     var Q: Double { bind.y }
     
-    func initialize(_ response: Response, _ norm: XYZPosition, _ bind: XYZPosition) {
-        self.response = response
-        self.bind = bind; self.norm = norm;
+    override func initialize(_ response: Response, _ norm: XYZPosition, _ bind: XYZPosition) {
+        super.initialize(response, norm, bind)
         setNormX(norm.x); setNormY(norm.y); setNormZ(norm.z);
         updateResponse()
     }
@@ -56,7 +55,6 @@ class LowPass: EQFilterClass, EQFilterPrtc {
         let w0wDivQ = omega*w0 / Q
         let denominator = magnitudeComplex(w02_w2, w0wDivQ)
         response.dB = magnitudeTodB(w02 / denominator)
-        response.responseDidUpdate()
     }
     
     

@@ -52,15 +52,12 @@ class MainViewController: UIViewController {
     @IBOutlet var touchMeView: TouchMeView!
     var gridView: GridView!
     
-    var responses: [Response] = []
-    var rootResponse = ResponseParent([])
-    var filters: [EQFilterPrtc] = []
+    var filterManager = FilterManager()
     private var bind: [XYZPosition] = []
     private var norm: [XYZPosition] = []
     var storages: [OneBand] = []
     
     var activePView: ParameterView = PView_noSlider()
-    var activeFilter: EQFilterPrtc = Peak()
     
     //var taskManager = TaskList()
     var pendingTaskBand = OneBand()
@@ -68,6 +65,20 @@ class MainViewController: UIViewController {
     
     var bthDataSender = BluetoothDataSender()
     var bluetoothVC: BluetoothVC?
+
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        
+        for band in factoryPreset_().bands {
+            storages.append(band)
+            let norm = band.position
+            let bind = XYZPosition()
+            self.norm.append(norm)
+            self.bind.append(bind)
+        }
+        filterManager.initialize(storage: storages, bind: bind)
+    }
     
     
     override func viewDidLoad() {
@@ -115,11 +126,7 @@ class MainViewController: UIViewController {
         parameterViews[index].setViewActive(isOn)
         touchMeView.setDotActive(index, isActive: isOn)
         typeMenu[index]?.isEnabled = isOn
-        if !isOn {
-            responses[index].dB = defaultDoubleArray
-            responses[index].responseDidUpdate()
-        }
-        else { filters[index].updateResponse() }
+        filterManager.handleOnOff(at: index, isOn: isOn)
         filterView.masterGraphUpdate()
     }
 }
@@ -149,19 +156,7 @@ extension MainViewController { //initializers
     }
     
     private func initModels() {
-        for band in factoryPreset_().bands {
-            storages.append(band)
-            let norm = band.position
-            let bind = XYZPosition()
-            let response = Response()
-            let filter = EQFilterClass.typeDict[band.type]!()
-            self.norm.append(norm)
-            self.bind.append(bind)
-            responses.append(response)
-            filters.append(filter)
-            filter.initialize(response, norm, bind)
-        }
-        rootResponse = ResponseParent(responses)
+
     }
     
     private func initParameterViews() {
@@ -182,7 +177,7 @@ extension MainViewController { //initializers
     private func initFilterViewAndTouchMeView() {
         touchMeView.delegate = self
         touchMeView.initialize()
-        filterView.initialize(rootResponse)
+        filterManager.setFilterView(view: filterView)
     }
     
     private func initGridView() {
@@ -193,51 +188,52 @@ extension MainViewController { //initializers
 }
 
 
-extension MainViewController: PViewDelegate, TouchMeViewDelegate {
+extension MainViewController: PViewDelegate {
     
-    func pViewSliderMoved(_ index: Int, _ value: Double) {
-        activeFilter.setNormZ(value)
-        activeFilter.updateResponse()
-        filterView.responseDidUpdate()
+    
+    func sliderMoved(_ value: Double) {
+        filterManager.sliderMoved(value)
     }
     
-    func pViewSliderTouchBegin(_ index: Int) {
-        activeFilter = filters[index]
-        filterView.touchesBegin(index, responses[index])
+    func sliderTouchesBegan(_ index: Int) {
+        filterManager.changesBegan(index)
     }
     
-    func pViewSliderTouchEnded(_ index: Int) {
+    func sliderTouchesEnded() {
     }
     
+    func xLocktoggled(at index: Int) {
+        touchMeView.xLockToggled(at: index)
+    }
+    func yLocktoggled(at index: Int) {
+        touchMeView.yLockToggled(at: index)
+    }
+
+}
+
+extension MainViewController: TouchMeViewDelegate {
     func touchesMoved(_ position: XYPosition) {
-        activeFilter.setNormX(position.x)
-        activeFilter.setNormY(position.y)
-        activeFilter.updateResponse()
-        filterView.responseDidUpdate()
+        filterManager.touchesMoved(position)
         activePView.updateXLabel()
         activePView.updateYLabel()
     }
     
     func touchesBegan(_ index: Int) {
-        activeFilter = filters[index]
         activePView = parameterViews[index]
-        filterView.touchesBegin(index, responses[index])
+        filterManager.changesBegan(index)
     }
     
     func touchesEnded() {
-        
     }
-    
 }
 
 extension MainViewController {
+    
     // typeParameter의 변화에 따라서 사용될 함수들
     private func changeInFilterType(index: Int, type: FilterType) {
-        let filter = EQFilterClass.typeDict[type]!()
-        filter.initialize(responses[index], norm[index], bind[index])
-        filters[index] = filter
+        filterManager.filterTypeChanged(at: index, type: type)
         changePview(at: index, type: type)
-        filterView.responseDidUpdate()
+        touchMeView.
     }
     /*
     private func setBandByPreset(_ index: Int) {
@@ -253,6 +249,11 @@ extension MainViewController {
         }
         filterView.masterGraphUpdate()
     }*/
+    
+    func setRootResponse() {
+
+    }
+    
     private func changePview(at index: Int, type: FilterType) {
         parameterViews[index].removeFromSuperview()
         let newView = loadPViewFromXib(index, type)
