@@ -11,6 +11,8 @@ protocol TouchMeViewDelegate: AnyObject {
     func touchesBegan(_ index: Int)
     func touchesMoved(_ position: XYPosition)
     func touchesEnded()
+    func didDoubleTap(at index: Int)
+    func pasteResquest(at index: Int)
 }
 
 class TouchMeView: UIView {
@@ -33,21 +35,37 @@ class TouchMeView: UIView {
         self.backgroundColor = .clear
     }
 
-    func initialize() {
-        let xyPositions = factoryPreset_().bands.map { $0.getXY() }
+    func initialize(normPositions: [XYZPosition]) {
+        setupDoubleTap()
+        let xyPositions = normPositions.map { $0.getXY() }
         for (i, position) in xyPositions.enumerated() {
             let dot = MovingDot()
             dot.fillColor = colorDict[i].cgColor
-            dot.path = UIBezierPath(ovalIn: CGRect(x: -8, y: -8, width: 16, height: 16)).cgPath
+            dot.superBounds = self.bounds
             dot.position = getPositionFromNormValues(position)
-            dot.actions = ["position": NSNull()]
             dot.zPosition = CGFloat( i % sectionSize )
             allDots.append(dot)
             layer.addSublayer(dot)
         }
         setSectionActive(0)
     }
+    func setupDoubleTap() {
+        let doubleTapRECG = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap))
+        doubleTapRECG.numberOfTapsRequired = 2
+        self.addGestureRecognizer(doubleTapRECG)
+    }
 
+    @objc func handleDoubleTap(_ recognizer: UITapGestureRecognizer) {
+        let touchPoint = recognizer.location(in: self)
+        setClosestDot(touchPoint)
+        dots.forEach{ $0.cleardXdY() }
+        guard let dotIndex = activeDotIndex else {return}
+        delegate?.didDoubleTap(at: dotIndex)
+        bringActiveLayerFront()
+        let position = factoryPreset_().bands[dotIndex].getXY()
+        let point = activeDot!.setPosition(getPositionFromBindValues(position))
+        delegate?.touchesMoved(getNormValues(point))
+    }
 
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -93,11 +111,12 @@ class TouchMeView: UIView {
               let activeDot = activeDot else { return }
         let location = touch.location(in: self)
         let position = activeDot.setPosition(location)
-        delegate?.touchesMoved(getNormValues(position))
+        delegate?.touchesMoved(getBindValues(position))
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         delegate?.touchesEnded()
+        dots.forEach{$0.cleardXdY()}
     }
     
     private func getNormValues(_ point: CGPoint) -> XYPosition {
@@ -111,6 +130,19 @@ class TouchMeView: UIView {
         point.x = normP.x * bounds.width
         point.y = (1 - normP.y) * bounds.height
         return point
+    }
+    
+    private func getPositionFromBindValues(_ bindP: XYPosition) -> CGPoint {
+        var point = CGPoint()
+        point.x = Calculate.normX(bindP.x) * bounds.width
+        point.y = Calculate.normYwith(gain: bindP.y) * bounds.height
+        return point
+    }
+    
+    private func getBindValues(_ point: CGPoint) -> XYPosition {
+        let freq = Calculate.frequency(point.x/bounds.width)
+        let gain = Calculate.gain(point.y/bounds.height)
+        return XYPosition(x: freq, y: gain)
     }
 }
 
@@ -130,6 +162,7 @@ extension TouchMeView {
     
     func xLockToggled(at index: Int) {
         let dot = allDots[index].xLockToggled()
+        dot.removeFromSuperlayer()
         layer.addSublayer(dot)
         allDots[index] = dot
         dots[index-offset] = dot
@@ -137,12 +170,33 @@ extension TouchMeView {
     
     func yLockToggled(at index: Int) {
         let dot = allDots[index].yLockToggled()
+        dot.removeFromSuperlayer()
         layer.addSublayer(dot)
         allDots[index] = dot
         dots[index-offset] = dot
     }
 
-    func setDotByPreset(index: Int, value: XYPosition) {
-        allDots[index].position = getPositionFromNormValues(value)
+    func setPositionByPreset(at index: Int, with position: XYPosition) {
+        activeDot = allDots[index]
+        bringActiveLayerFront()
+        allDots[index].position = getPositionFromNormValues(position)
+    }
+    
+    func setXwith(value: Double, at index: Int) {
+        activeDot = allDots[index]
+        bringActiveLayerFront()
+        activeDot?.position.x = value * bounds.width
+    }
+    func setYwith(value: Double, at index: Int) {
+        activeDot = allDots[index]
+        bringActiveLayerFront()
+        activeDot?.position.y = (1 - value) * bounds.height
+    }
+    
+    func doubleTapped(at index: Int, with position: XYPosition) {
+        activeDot = allDots[index]
+        bringActiveLayerFront()
+        let newPosition = allDots[index].setPosition(getPositionFromNormValues(position))
+        delegate?.touchesMoved(getNormValues(newPosition))
     }
 }

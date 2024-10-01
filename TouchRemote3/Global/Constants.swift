@@ -11,9 +11,8 @@ import UIKit
 let numberOfBands = 8
 let sectionSize = numberOfBands/2
 
-let defaultXPosition = [0.2, 0.4, 0.6, 0.8, 0.15, 0.35, 0.65, 0.85]
 let defaultFilterType: [FilterType] = [.peak, .peak, .peak, .peak, .lowShelf, .peak, .peak, .highShelf]
-let factoryPreset = factoryPreset_()
+
 let factoryPosition = factoryPreset_().bands.map{ $0.position }
 
 func freqToNormPosition(freq: Int) {
@@ -21,17 +20,19 @@ func freqToNormPosition(freq: Int) {
 }
 
 func factoryPreset_() -> Preset {
-    var bands: [OneBand] = []
-    for i in 0..<numberOfBands {
-        let x = defaultXPosition[i]
-        let y = 0.5
-        let z = 0.5
-        let xyz = XYZPosition(x: x, y: y, z: z)
-        let band = OneBand(defaultFilterType[i], xyz)
-        bands.append(band)
-    }
+    let bands: [OneBand] = [
+        OneBand(.peak, XYZPosition(x: 80, y: 0.0, z: 1.7)),
+        OneBand(.peak, XYZPosition(x: 300, y: 0.0, z: 1.7)),
+        OneBand(.peak, XYZPosition(x: 1000, y: 0.0, z: 1.7)),
+        OneBand(.peak, XYZPosition(x: 5000, y: 0.0, z: 1.7)),
+        OneBand(.lowShelf, XYZPosition(x: 50, y: 0.0, z: 1.7)),
+        OneBand(.peak, XYZPosition(x: 200, y: 0.0, z: 1.7)),
+        OneBand(.peak, XYZPosition(x: 2000, y: 0.0, z: 1.7)),
+        OneBand(.highShelf, XYZPosition(x: 8000, y: 0.0, z: 1.7))
+    ]
     return Preset(bands: bands)
 }
+
 
 let red1 = UIColor(red: 1.0, green: 0.2, blue: 0.3, alpha: 1.0)
 let yellow1 = UIColor(red: 0.9, green: 0.8, blue: 0.0, alpha: 1.0)

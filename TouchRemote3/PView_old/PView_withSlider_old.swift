@@ -4,7 +4,7 @@
 //
 //  Created by Seokhyun Song on 8/16/24.
 //
-
+/*
 import Foundation
 import UIKit
 
@@ -55,3 +55,4 @@ class PView_withSlider: PViewClass, ParameterView {
         QLabel.text = String(format: "%.2f", bind.z)
     }
 }
+*/

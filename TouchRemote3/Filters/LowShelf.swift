@@ -21,7 +21,7 @@ class LowShelf: EQFilterClass, EQFilterPrtc {
     
     override func initialize(_ response: Response, _ norm: XYZPosition, _ bind: XYZPosition) {
         super.initialize(response, norm, bind)
-        setNormX(norm.x); setNormY(norm.y); setNormZ(norm.z);
+        setBindX(bind.x); setBindY(bind.y); setBindZ(bind.z);
         updateResponse()
     }
     

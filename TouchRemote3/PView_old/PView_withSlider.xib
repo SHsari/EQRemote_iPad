@@ -33,10 +33,10 @@
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aRu-YY-3Cb" customClass="LockButton" customModule="TouchRemote3" customModuleProvider="target">
-                                    <rect key="frame" x="106" y="21" width="42.5" height="34"/>
+                                    <rect key="frame" x="106" y="-33" width="152" height="142"/>
                                     <state key="normal" title="Button"/>
                                     <buttonConfiguration key="configuration" style="plain">
-                                        <imageReference key="image" image="lock.fill" catalog="system" symbolScale="medium"/>
+                                        <imageReference key="image" image="type" symbolScale="medium"/>
                                     </buttonConfiguration>
                                     <connections>
                                         <action selector="xLockToggled:" destination="Jxy-Ed-QM2" eventType="touchUpInside" id="U6c-Dp-Zsf"/>
@@ -140,5 +140,6 @@
     </objects>
     <resources>
         <image name="lock.fill" catalog="system" width="125" height="128"/>
+        <image name="type" width="128" height="128"/>
     </resources>
 </document>

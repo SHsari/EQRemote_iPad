@@ -69,12 +69,23 @@ class FilterView: UIView {
     
     }
     
+    func setActiveIndex(_ index: Int, _ response: Response) {
+        activeIndex = index
+        bringActiveLayerToFront()
+        activeResponse = response
+    }
+    
     func responseDidUpdate() {
         updatePath(activeResponse, allGraphs[activeIndex])
         updatePath(rootResponse, masterLayer)
     }
     
     func masterGraphUpdate(){
+        updatePath(rootResponse, masterLayer)
+    }
+    
+    func handleOnOff(at index: Int, isOn: Bool) {
+        allGraphs[index].opacity = isOn ? 0.7 : 0.4
         updatePath(rootResponse, masterLayer)
     }
 
@@ -110,9 +121,5 @@ class FilterView: UIView {
 }
 
 extension FilterView {
-    func setActiveIndex(_ index: Int, _ response: Response) {
-        activeIndex = index
-        bringActiveLayerToFront()
-        activeResponse = response
-    }
+
 }

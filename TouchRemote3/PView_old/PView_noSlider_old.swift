@@ -4,12 +4,20 @@
 //
 //  Created by Seokhyun Song on 8/16/24.
 //
-
+/*
+ 
+ let typePViewDict: [FilterType : String] = [
+     .peak: "PView_withSlider",
+     .lowPass: "PView_noSlider",
+     .highPass: "PView_noSlider",
+     .lowShelf: "PView_withSlider",
+     .highShelf: "PView_withSlider"
+ ]
+ 
 import Foundation
 import UIKit
 
-class PView_noSlider
-: PViewClass, ParameterView {
+class PView_noSlider: PViewClass, ParameterView {
     
     @IBOutlet weak var freqLabel: UILabel!
     @IBOutlet weak var QLabel: UILabel!
@@ -36,3 +44,4 @@ class PView_noSlider
     func updateZLabel() {}
     func updateSlider(_ z: Double) {}
 }
+*/

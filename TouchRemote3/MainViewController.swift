@@ -57,7 +57,7 @@ class MainViewController: UIViewController {
     private var norm: [XYZPosition] = []
     var storages: [OneBand] = []
     
-    var activePView: ParameterView = PView_noSlider()
+    var activePView: ParameterView = PView_withSlider()
     
     //var taskManager = TaskList()
     var pendingTaskBand = OneBand()
@@ -72,12 +72,12 @@ class MainViewController: UIViewController {
         
         for band in factoryPreset_().bands {
             storages.append(band)
-            let norm = band.position
-            let bind = XYZPosition()
+            let bind = band.position
+            let norm = XYZPosition()
             self.norm.append(norm)
             self.bind.append(bind)
         }
-        filterManager.initialize(storage: storages, bind: bind)
+        filterManager.initialize(storage: storages, norm: norm)
     }
     
     
@@ -156,15 +156,17 @@ extension MainViewController { //initializers
     }
     
     private func initModels() {
-
     }
     
     private func initParameterViews() {
-        for (i, band) in factoryPreset.bands.enumerated() {
-            let view = loadPViewFromXib(i, band.type)
+        for (i, band) in storages.enumerated() {
+            let type = band.type
+            let view = pViewDict[type]!()
             view.tintColor = colorDict[i]
             view.backgroundColor = .clear
             parameterViews.append(view)
+            paramViews_[i]?.addSubview(view)
+            view.setLayoutWithSuperView()
             view.initialize(bind[i], i, self)
             view.updateXLabel()
             view.updateYLabel()
@@ -176,7 +178,7 @@ extension MainViewController { //initializers
     
     private func initFilterViewAndTouchMeView() {
         touchMeView.delegate = self
-        touchMeView.initialize()
+        touchMeView.initialize(normPositions: norm)
         filterManager.setFilterView(view: filterView)
     }
     
@@ -190,28 +192,86 @@ extension MainViewController { //initializers
 
 extension MainViewController: PViewDelegate {
     
+    func sliderMoved(_ value: Double) { filterManager.sliderMoved(value) }
     
-    func sliderMoved(_ value: Double) {
-        filterManager.sliderMoved(value)
-    }
+    func sliderTouchesBegan(_ index: Int) { filterManager.touchesBegan(at: index) }
     
-    func sliderTouchesBegan(_ index: Int) {
-        filterManager.changesBegan(index)
-    }
+    func sliderTouchesEnded() { }
     
-    func sliderTouchesEnded() {
-    }
-    
-    func xLocktoggled(at index: Int) {
-        touchMeView.xLockToggled(at: index)
-    }
-    func yLocktoggled(at index: Int) {
-        touchMeView.yLockToggled(at: index)
-    }
+    func xLocktoggled(at index: Int) { touchMeView.xLockToggled(at: index) }
+    func yLocktoggled(at index: Int) { touchMeView.yLockToggled(at: index) }
 
+    
+    func didDoubleTap_freq(at index: Int) {
+        let x = factoryPreset_().bands[index].position.x
+        filterManager.set(normX: x, at: index)
+        touchMeView.doubleTapped(at: index, with: XYPosition(x: x, y: norm[index].y))
+    }
+    
+    func didDoubleTap_gain(at index: Int) {
+        let y = factoryPreset_().bands[index].position.y
+        filterManager.set(normY: y, at: index)
+        touchMeView.doubleTapped(at: index, with: norm[index].getXY())
+    }
+    
+    func didDoubleTap_Q(at index: Int) {
+        let z = factoryPreset_().bands[index].position.z
+        filterManager.set(normZ: z, at: index)
+        parameterViews[index].updateSlider(z)
+    }
+    
+    
+    func copyRequest(at index: Int, pType: ParameterType) {
+        switch pType {
+        case .x: Clipboard.data = norm[index].x
+        case .y: Clipboard.data = norm[index].y
+        case .z: Clipboard.data = norm[index].z
+        case .band: Clipboard.data = norm[index].copy()
+        case .dot: Clipboard.data = norm[index].getXY()
+        }
+    }
+    
+    func pasteRequest(at index: Int) {
+        guard let pType = Clipboard.type else { return }
+        switch pType {
+        case .x:
+            guard let x = Clipboard.data as? Double else {return}
+            filterManager.set(normX: x, at: index)
+            parameterViews[index].updateXLabel()
+            touchMeView.setXwith(value: x, at: index)
+        case .y:
+            guard let y = Clipboard.data as? Double else {return}
+            filterManager.set(normY: y, at: index)
+            parameterViews[index].updateYLabel()
+            touchMeView.setYwith(value: y, at: index)
+        case .z:
+            guard let z = Clipboard.data as? Double else {return}
+            filterManager.set(normZ: z, at: index)
+            parameterViews[index].updateZLabel()
+            parameterViews[index].updateSlider(z)
+        case .band:
+            guard let band = Clipboard.data as? XYZPosition else {return}
+            filterManager.set(band: band, at: index)
+            parameterViews[index].updateWhole(band.z)
+            touchMeView.setPositionByPreset(at: index, with: band.getXY())
+        case .dot: //Touch Me View에서 아직 구현안됨.
+            guard let position = Clipboard.data as? XYPosition else {return}
+            filterManager.touchesBegan(at: index)
+            filterManager.touchesMoved(position)
+            parameterViews[index].updateXLabel()
+            parameterViews[index].updateYLabel()
+            touchMeView.setPositionByPreset(at: index, with: position)
+        }
+    }
+    
+    func typeInRequest(at index: Int, type: ParameterType) {
+        
+    }
+    
 }
 
 extension MainViewController: TouchMeViewDelegate {
+    
     func touchesMoved(_ position: XYPosition) {
         filterManager.touchesMoved(position)
         activePView.updateXLabel()
@@ -220,10 +280,17 @@ extension MainViewController: TouchMeViewDelegate {
     
     func touchesBegan(_ index: Int) {
         activePView = parameterViews[index]
-        filterManager.changesBegan(index)
+        filterManager.touchesBegan(at: index)
     }
     
-    func touchesEnded() {
+    func touchesEnded() {}
+    
+    func didDoubleTap(at index: Int)  {
+        activePView = parameterViews[index]
+        filterManager.touchesBegan(at: index)
+    }
+    func pasteResquest(at index: Int) {
+        self.pasteRequest(at: index)
     }
 }
 
@@ -233,7 +300,6 @@ extension MainViewController {
     private func changeInFilterType(index: Int, type: FilterType) {
         filterManager.filterTypeChanged(at: index, type: type)
         changePview(at: index, type: type)
-        touchMeView.
     }
     /*
     private func setBandByPreset(_ index: Int) {
@@ -253,7 +319,23 @@ extension MainViewController {
     func setRootResponse() {
 
     }
+    func changePview(at index: Int, type: FilterType) {
+        parameterViews[index].removeFromSuperview()
+        let newView = pViewDict[type]!()
+        parameterViews[index] = newView
+        paramViews_[index]?.addSubview(newView)
+        newView.setLayoutWithSuperView()
+        newView.initialize(bind[index], index, self)
+        newView.tintColor = colorDict[index]
+        newView.updateXLabel()
+        newView.updateYLabel()
+        newView.updateZLabel()
+        newView.updateSlider(norm[index].z)
+    }
     
+    
+    
+    /*
     private func changePview(at index: Int, type: FilterType) {
         parameterViews[index].removeFromSuperview()
         let newView = loadPViewFromXib(index, type)
@@ -277,7 +359,7 @@ extension MainViewController {
             return view
         } else { fatalError() }
     }
-    
+    */
     private func setFilterMenuSelection(_ index: Int, _ type: FilterType) {
         guard let typeString = typeStringDict[type] else {return}
         guard let button = typeMenu[index] else {return}

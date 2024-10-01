@@ -14,11 +14,11 @@ class HighPass: EQFilterClass, EQFilterPrtc {
     private lazy var w02_w2 = w02 - omega2
     
     var freq: Double { bind.x }
-    var Q: Double { bind.y }
+    var Q: Double { bind.z }
     
     override func initialize(_ response: Response, _ norm: XYZPosition, _ bind: XYZPosition) {
         super.initialize(response, norm, bind)
-        setNormX(norm.x); setNormY(norm.y); setNormZ(norm.z);
+        setBindX(bind.x); setBindY(bind.y); setBindZ(bind.z);
         updateResponse()
     }
 
@@ -26,20 +26,21 @@ class HighPass: EQFilterClass, EQFilterPrtc {
         norm.x = x; bind.x = Calculate.frequency(x)
         xDidSet()
     }
+    func setNormY(_ y: Double) {
+        norm.y = y
+        bind.y = Calculate.gain(y)
+        bind.z = Calculate.passQ(y)
+    }
     
     func setBindX(_ x: Double) {
         bind.x = x; norm.x = Calculate.normX(x)
         xDidSet()
     }
     
-    func setNormY(_ y: Double) {
-        norm.y = y
-        bind.y = Calculate.passQ(y)
-    }
-    
     func setBindY(_ y: Double) {
         bind.y = y
-        norm.y = Calculate.normYwith(passQ: y)
+        norm.y = Calculate.normYwith(gain: y)
+        bind.z = Calculate.passQ(norm.y)
     }
     
     func setNormZ(_ z: Double) { }

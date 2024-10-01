@@ -67,6 +67,13 @@ struct Calculate{
 }
 
 
+struct Quantize{
+    static func frequency(origin: Double) {
+        
+    }
+}
+
+
 func magnitudeTodB(_ value: [Double]) -> [Double] {
     return value.map{ log10($0) * 20 }
 }

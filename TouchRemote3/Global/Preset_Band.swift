@@ -40,6 +40,9 @@ class XYZPosition: NSCopying {
         let copy = XYZPosition(x: x, y: y, z: z)
         return copy
     }
+    func getXY() -> XYPosition {
+        return XYPosition(x: x, y: y)
+    }
     
     var x: Double = 0.5
     var y: Double = 0.5

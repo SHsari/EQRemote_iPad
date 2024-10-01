@@ -20,7 +20,7 @@ class Peak: EQFilterClass, EQFilterPrtc {
     
     override func initialize(_ response: Response, _ norm: XYZPosition, _ bind: XYZPosition) {
         super.initialize(response, norm, bind)
-        setNormX(norm.x); setNormY(norm.y); setNormZ(norm.z);
+        setBindX(bind.x); setBindY(bind.y); setBindZ(bind.z);
         updateResponse()
     }
     
@@ -59,6 +59,7 @@ class Peak: EQFilterClass, EQFilterPrtc {
         w0 = pi2 * freq
         w02_w2 = w0^2 - omega2
     }
+    
     private func yDidSet() { A = pow(10, gain/40) }
     
     func updateResponse() {

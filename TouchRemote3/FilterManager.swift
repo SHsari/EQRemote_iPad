@@ -10,9 +10,9 @@ import Foundation
 class FilterManager {
     
     var filterView = FilterView()
-    var responses: [Response] = []
-    var rootResponse = Response()
-    var pendingResponse = Response()
+    var allResponse: [Response] = []
+    var rootResponse = ResponseParent([])
+    var pendingResp = defaultDoubleArray
     var activeResponse = Response()
     
     var filters: [EQFilterPrtc] = []
@@ -21,18 +21,19 @@ class FilterManager {
     var norm: [XYZPosition] = []
     var bind: [XYZPosition] = []
     
-    func initialize(storage: [OneBand], bind: [XYZPosition]) {
+    func initialize(storage: [OneBand], norm: [XYZPosition]) {
         for (i, band) in storage.enumerated() {
-            let tmpBind = bind[i]
-            let tmpNorm = band.position
+            let tmpBind = band.position
+            let tmpNorm = norm[i]
             let response = Response()
             let filter = EQFilterClass.typeDict[band.type]!()
             self.norm.append(tmpNorm)
             self.bind.append(tmpBind)
-            responses.append(response)
+            allResponse.append(response)
             filters.append(filter)
             filter.initialize(response, tmpNorm, tmpBind)
         }
+        rootResponse = ResponseParent(allResponse)
         setRootResponse()
     }
     
@@ -41,16 +42,18 @@ class FilterManager {
         filterView.initialize(rootResponse)
     }
     
-    func changesBegan(_ index: Int) {
+    
+    
+    
+    func touchesBegan(at index: Int) {
         activeFilter = filters[index]
-        activeResponse = responses[index]
-        pendingResponse.dB = rootResponse.dB - activeResponse.dB
-        filterView.setActiveIndex(index, responses[index])
+        responseWillUpdate(at: index)
+        filterView.setActiveIndex(index, allResponse[index])
     }
     
     func touchesMoved(_ position: XYPosition) {
-        activeFilter.setNormX(position.x)
-        activeFilter.setNormY(position.y)
+        activeFilter.setBindX(position.x)
+        activeFilter.setBindY(position.y)
         activeFilter.updateResponse()
         responseUpdated()
         filterView.responseDidUpdate()
@@ -63,34 +66,77 @@ class FilterManager {
         filterView.responseDidUpdate()
     }
     
-    func handleOnOff(at index: Int, isOn: Bool) {
-        let response = responses[index]
-        filterView.setActiveIndex(index, response)
-        if !isOn {
-            rootResponse.dB = rootResponse.dB - response.dB
-        }
-        else {
-            rootResponse.dB = rootResponse.dB + response.dB
-        }
+    private func responseWillUpdate(at index: Int) {
+        activeResponse = allResponse[index]
+        pendingResp = rootResponse.dB - activeResponse.dB
+    }
+    private func responseUpdated() {
+        rootResponse.dB = pendingResp + activeResponse.dB
+    }
+    
+    
+    
+
+    
+    func set(normX: Double, at index: Int) {
+        touchesBegan(at: index)
+        activeFilter.setNormX(normX)
+        activeFilter.updateResponse()
+        responseUpdated()
+        filterView.responseDidUpdate()
+    }
+    func set(normY: Double, at index: Int) {
+        touchesBegan(at: index)
+        activeFilter.setNormY(normY)
+        activeFilter.updateResponse()
+        responseUpdated()
+        filterView.responseDidUpdate()
+    }
+    func set(normZ: Double, at index: Int) {
+        touchesBegan(at: index)
+        activeFilter.setNormZ(normZ)
+        activeFilter.updateResponse()
+        responseUpdated()
+        filterView.responseDidUpdate()
+    }
+    func set(band: XYZPosition, at index: Int) {
+        touchesBegan(at: index)
+        activeFilter.setNormX(band.x)
+        activeFilter.setNormY(band.y)
+        activeFilter.setNormZ(band.z)
+        activeFilter.updateResponse()
+        responseUpdated()
         filterView.responseDidUpdate()
     }
     
+    
+    
+    
+    
+    
     func filterTypeChanged(at index: Int, type: FilterType) {
-        changesBegan(index)
+        touchesBegan(at: index)
         let filter = EQFilterClass.typeDict[type]!()
-        filter.initialize(responses[index], norm[index], bind[index])
+        filter.initialize(allResponse[index], norm[index], bind[index])
         filters[index] = filter
         responseUpdated()
         filterView.responseDidUpdate()
     }
     
-    private func responseUpdated() {
-        rootResponse.dB = pendingResponse.dB + activeResponse.dB
+    func handleOnOff(at index: Int, isOn: Bool) {
+        if !isOn {
+            rootResponse.dB = rootResponse.dB - allResponse[index].dB
+        } else {
+            rootResponse.dB = rootResponse.dB + allResponse[index].dB
+        }
+        filterView.masterGraphUpdate()
     }
+    
+    
     
     private func setRootResponse() {
         let tmp = Response()
-        for response in self.responses {
+        for response in self.allResponse {
             tmp.dB = tmp.dB + response.dB
         }
         rootResponse.dB = tmp.dB
