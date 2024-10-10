@@ -61,13 +61,6 @@ class MovingDot: CAShapeLayer, MovingDotPrtc {
         return position
     }
     
-    func dontAskMyClassSetPosition(_ point: CGPoint) -> CGPoint {
-        let adjustedX = min(max(point.x + self.dx, self.superBounds.minX), self.superBounds.maxX)
-        let adjustedY = min(max(point.y + self.dy, self.superBounds.minY), self.superBounds.maxY)
-        position = CGPoint(x: adjustedX, y: adjustedY)
-        return position
-    }
-    
     func xLockToggled() -> MovingDotPrtc {
         self.removeFromSuperlayer()
         let dot = MovingDot_XLocked()
@@ -80,15 +73,14 @@ class MovingDot: CAShapeLayer, MovingDotPrtc {
         dot.set(layer: self)
         return dot
     }
+    func resetLock() -> MovingDot {
+        self.removeFromSuperlayer()
+        let dot = MovingDot()
+        dot.set(layer: self)
+        return dot
+    }
     func cleardXdY() {
         dx=0; dy=0
-    }
-    
-    private func getPositionFromNormValues(_ x: Double, _ y: Double) -> CGPoint {
-        var point = CGPoint()
-        point.x = x * bounds.width
-        point.y = (1 - y) * bounds.height
-        return point
     }
 }
 

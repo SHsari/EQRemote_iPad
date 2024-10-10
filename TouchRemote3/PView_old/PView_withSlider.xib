@@ -10,7 +10,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" alignment="center" id="Jxy-Ed-QM2" customClass="PView_withSlider" customModule="TouchRemote3" customModuleProvider="target">
+        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" alignment="center" id="Jxy-Ed-QM2" customClass="PView_peak" customModule="TouchRemote3" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="326" height="228"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>

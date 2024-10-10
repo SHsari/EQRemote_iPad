@@ -48,27 +48,31 @@ class MainViewController: UIViewController {
     
     lazy var typeMenu = [typeMenu1, typeMenu2, typeMenu3, typeMenu4, typeMenu5, typeMenu6, typeMenu7, typeMenu8]
     
+    
     @IBOutlet var filterView: FilterView!
     @IBOutlet var touchMeView: TouchMeView!
     var gridView: GridView!
     
     var filterManager = FilterManager()
+    
+    private var filters: [EQFilterPrtc] = []
+    
     private var bind: [XYZPosition] = []
     private var norm: [XYZPosition] = []
     var storages: [OneBand] = []
     
-    var activePView: ParameterView = PView_withSlider()
+    var activePView: ParameterView = PView_peak()
     
-    //var taskManager = TaskList()
-    var pendingTaskBand = OneBand()
-    var pendingTaskPreset = factoryPreset_()
+    var taskManager: TaskList
     
     var bthDataSender = BluetoothDataSender()
     var bluetoothVC: BluetoothVC?
+    
+    var pendingTask: Recordable = factoryPreset_()
+    var taskIndex: Int = -1
 
     
     required init?(coder: NSCoder) {
-        super.init(coder: coder)
         
         for band in factoryPreset_().bands {
             storages.append(band)
@@ -78,6 +82,10 @@ class MainViewController: UIViewController {
             self.bind.append(bind)
         }
         filterManager.initialize(storage: storages, norm: norm)
+        taskManager = TaskList(storage: storages, bind: bind)
+        
+        super.init(coder: coder)
+        taskManager.delegate = self
     }
     
     
@@ -86,20 +94,13 @@ class MainViewController: UIViewController {
         // Do any additional setup after loading the view.
         initBandSwitchColor()
         initTypeMenuOptions()
-        initModels()
         
         initFilterViewAndTouchMeView()
         initParameterViews()
         initGridView()
     }
     
-    private let typeStringDict: [FilterType : String] = [
-        .peak: "Peak",
-        .lowPass: "LowPass",
-        .highPass: "HighPass",
-        .lowShelf: "LowShelf",
-        .highShelf: "HighShelf"
-    ]
+
     let typeStringArray = ["Peak", "LowPass", "HighPass", "LowShelf", "HighShelf"]
     
     let numberTypeDict: [Int : FilterType] = [
@@ -110,8 +111,16 @@ class MainViewController: UIViewController {
         4: .highShelf
     ]
     
+    @IBOutlet weak var undoBTN: UIButton!
+    @IBOutlet weak var redoBTN: UIButton!
+    @IBAction func undo(_ sender: UIButton) { taskManager.undo() }
+    @IBAction func redo(_ sender: UIButton) { taskManager.redo() }
+    
     @IBAction func sectionChanged(_ sender: UISegmentedControl) {
         let section = sender.selectedSegmentIndex
+        sectionChange(section)
+    }
+    func sectionChange(_ section: Int) {
         touchMeView.setSectionActive(section)
         filterView.setSectionActive(section)
         let isSection1Selected = section == 0
@@ -155,9 +164,6 @@ extension MainViewController { //initializers
         }
     }
     
-    private func initModels() {
-    }
-    
     private func initParameterViews() {
         for (i, band) in storages.enumerated() {
             let type = band.type
@@ -171,14 +177,14 @@ extension MainViewController { //initializers
             view.updateXLabel()
             view.updateYLabel()
             view.updateZLabel()
-            view.updateSlider(norm[i].z)
+            view.updateSlider()
         }
         pViewSection2.isHidden = true
     }
     
     private func initFilterViewAndTouchMeView() {
         touchMeView.delegate = self
-        touchMeView.initialize(normPositions: norm)
+        touchMeView.initialize(bindPositions: bind)
         filterManager.setFilterView(view: filterView)
     }
     
@@ -191,86 +197,119 @@ extension MainViewController { //initializers
 
 
 extension MainViewController: PViewDelegate {
-    
+   
+    func sliderTouchesBegan(_ index: Int) {
+        taskManager.sliderWillMove(at: index)
+        filterManager.willBeChange(in: index)
+    }
     func sliderMoved(_ value: Double) { filterManager.sliderMoved(value) }
-    
-    func sliderTouchesBegan(_ index: Int) { filterManager.touchesBegan(at: index) }
-    
-    func sliderTouchesEnded() { }
+    func sliderTouchesEnded() {
+        taskManager.sliderDidMove()
+    }
     
     func xLocktoggled(at index: Int) { touchMeView.xLockToggled(at: index) }
     func yLocktoggled(at index: Int) { touchMeView.yLockToggled(at: index) }
-
     
     func didDoubleTap_freq(at index: Int) {
         let x = factoryPreset_().bands[index].position.x
-        filterManager.set(normX: x, at: index)
-        touchMeView.doubleTapped(at: index, with: XYPosition(x: x, y: norm[index].y))
+        filterManager.set(bindX: x, at: index)
+        touchMeView.doubleTapped(at: index, with: XYPosition(x: x, y: bind[index].y))
+        taskManager.dotDidMove()
     }
     
     func didDoubleTap_gain(at index: Int) {
         let y = factoryPreset_().bands[index].position.y
-        filterManager.set(normY: y, at: index)
-        touchMeView.doubleTapped(at: index, with: norm[index].getXY())
+        filterManager.set(bindY: y, at: index)
+        touchMeView.doubleTapped(at: index, with: bind[index].getXY())
+        taskManager.dotDidMove()
     }
     
     func didDoubleTap_Q(at index: Int) {
         let z = factoryPreset_().bands[index].position.z
-        filterManager.set(normZ: z, at: index)
-        parameterViews[index].updateSlider(z)
+        filterManager.set(bindZ: z, at: index)
+        parameterViews[index].updateSlider()
+        taskManager.sliderDidMove()
     }
-    
     
     func copyRequest(at index: Int, pType: ParameterType) {
         switch pType {
-        case .x: Clipboard.data = norm[index].x
-        case .y: Clipboard.data = norm[index].y
+        case .x: Clipboard.data = bind[index].x
+        case .y: Clipboard.data = bind[index].y
         case .z: Clipboard.data = norm[index].z
-        case .band: Clipboard.data = norm[index].copy()
-        case .dot: Clipboard.data = norm[index].getXY()
+        case .band: Clipboard.data = bind[index].copy()
+        case .dot: Clipboard.data = bind[index].getXY()
         }
     }
     
     func pasteRequest(at index: Int) {
         guard let pType = Clipboard.type else { return }
+        taskManager.xyzWillChange(at: index)
         switch pType {
         case .x:
             guard let x = Clipboard.data as? Double else {return}
-            filterManager.set(normX: x, at: index)
+            filterManager.set(bindX: x, at: index)
             parameterViews[index].updateXLabel()
             touchMeView.setXwith(value: x, at: index)
         case .y:
             guard let y = Clipboard.data as? Double else {return}
-            filterManager.set(normY: y, at: index)
+            filterManager.set(bindY: y, at: index)
             parameterViews[index].updateYLabel()
             touchMeView.setYwith(value: y, at: index)
         case .z:
             guard let z = Clipboard.data as? Double else {return}
             filterManager.set(normZ: z, at: index)
             parameterViews[index].updateZLabel()
-            parameterViews[index].updateSlider(z)
+            parameterViews[index].updateSlider()
         case .band:
             guard let band = Clipboard.data as? XYZPosition else {return}
-            filterManager.set(band: band, at: index)
-            parameterViews[index].updateWhole(band.z)
-            touchMeView.setPositionByPreset(at: index, with: band.getXY())
+            filterManager.set(xyz: band, at: index)
+            parameterViews[index].updateWhole()
+            touchMeView.setPositionDirect(at: index, with: band.getXY())
         case .dot: //Touch Me View에서 아직 구현안됨.
             guard let position = Clipboard.data as? XYPosition else {return}
-            filterManager.touchesBegan(at: index)
+            filterManager.willBeChange(in: index)
             filterManager.touchesMoved(position)
             parameterViews[index].updateXLabel()
             parameterViews[index].updateYLabel()
-            touchMeView.setPositionByPreset(at: index, with: position)
+            touchMeView.setPositionDirect(at: index, with: position)
         }
+        taskManager.xyzDidChange()
     }
     
     func typeInRequest(at index: Int, type: ParameterType) {
-        
+        //guard let view = Bundle.main.loadNibNamed("TypeInVC", owner: nil)?.first else {return}
+        let typeInVC = TypeInVC(nibName: "TypeInVC", bundle: nil)
+        typeInVC.modalPresentationStyle = .formSheet
+        typeInVC.modalTransitionStyle = .crossDissolve
+        present(typeInVC, animated: true, completion: nil)
+        typeInVC.initialize(index: index, band: storages[index], delegate: self)
     }
     
 }
+    
+extension MainViewController: TypeInVCDelegate {
+    func vcDismissed(at index: Int, _ values: [Double?]) {
+        taskManager.xyzWillChange(at: index)
+        let xyz = bind[index].copy()
+        if let x = values[0] { xyz.x = x }
+        if let y = values[1] { xyz.y = y }
+        if let z = values[2] { xyz.z = z }
+        filterManager.set(xyz: xyz, at: index)
+        touchMeView.setPositionDirect(at: index, with: xyz.getXY())
+        parameterViews[index].updateWhole()
+        taskManager.xyzDidChange()
+    }
+}
+
+
 
 extension MainViewController: TouchMeViewDelegate {
+    
+    func touchesBegan(_ index: Int) {
+        activePView = parameterViews[index]
+        filterManager.willBeChange(in: index)
+        taskManager.dotWillMove(at: index)
+    }
     
     func touchesMoved(_ position: XYPosition) {
         filterManager.touchesMoved(position)
@@ -278,28 +317,28 @@ extension MainViewController: TouchMeViewDelegate {
         activePView.updateYLabel()
     }
     
-    func touchesBegan(_ index: Int) {
-        activePView = parameterViews[index]
-        filterManager.touchesBegan(at: index)
+    func touchesEnded() {
+        taskManager.dotDidMove()
     }
-    
-    func touchesEnded() {}
     
     func didDoubleTap(at index: Int)  {
         activePView = parameterViews[index]
-        filterManager.touchesBegan(at: index)
+        filterManager.willBeChange(in: index)
+        taskManager.dotWillMove(at: index)
     }
-    func pasteResquest(at index: Int) {
-        self.pasteRequest(at: index)
-    }
+    
 }
 
 extension MainViewController {
     
     // typeParameter의 변화에 따라서 사용될 함수들
     private func changeInFilterType(index: Int, type: FilterType) {
+        taskManager.bandWillChange(at: index)
+        storages[index].type = type
         filterManager.filterTypeChanged(at: index, type: type)
         changePview(at: index, type: type)
+        touchMeView.resetDotLock(at: index)
+        taskManager.bandDidChange()
     }
     /*
     private func setBandByPreset(_ index: Int) {
@@ -316,9 +355,6 @@ extension MainViewController {
         filterView.masterGraphUpdate()
     }*/
     
-    func setRootResponse() {
-
-    }
     func changePview(at index: Int, type: FilterType) {
         parameterViews[index].removeFromSuperview()
         let newView = pViewDict[type]!()
@@ -330,7 +366,7 @@ extension MainViewController {
         newView.updateXLabel()
         newView.updateYLabel()
         newView.updateZLabel()
-        newView.updateSlider(norm[index].z)
+        newView.updateSlider()
     }
     
     
@@ -386,3 +422,85 @@ extension MainViewController: BluetoothVCDelegate {
     }
 }
 
+extension MainViewController: TaskListDelegate {
+    
+    func setRedoEnable(_ isEnable: Bool) { redoBTN.isEnabled = isEnable }
+    func setUndoEnable(_ isEnable: Bool) { undoBTN.isEnabled = isEnable }
+    
+    func willChangeByTask(at index: Int) {
+        let taskSection = index/4
+        if sectionController.selectedSegmentIndex != taskSection {
+            sectionController.selectedSegmentIndex = taskSection
+            sectionChange(taskSection)
+        }
+    }
+    
+    func setZ(value: Double, at index: Int) {
+        filterManager.set(bindZ: value, at: index)
+        parameterViews[index].updateSlider()
+    }
+    
+    func setDot(value: XYPosition, at index: Int) {
+        filterManager.willBeChange(in: index)
+        filterManager.touchesMoved(value)
+        parameterViews[index].updateXLabel()
+        parameterViews[index].updateYLabel()
+        touchMeView.setPositionDirect(at: index, with: value)
+    }
+    
+    func setXYZ(value: XYZPosition, at index: Int) {
+        let xy = value.getXY()
+        filterManager.willBeChange(in: index)
+        filterManager.set(xyz: value, at: index)
+        parameterViews[index].updateWhole()
+        touchMeView.setPositionDirect(at: index, with: xy)
+    }
+    
+    func setBand(value: OneBand, at index: Int) {
+        let type = value.type
+        storages[index].type = type
+        filterManager.setBand(band: value, at: index)
+        changePview(at: index, type: type)
+        parameterViews[index].updateWhole()
+        setFilterMenuSelection(index, type)
+        touchMeView.resetDotLock(at: index)
+        touchMeView.setPositionDirect(at: index, with: value.getXY())
+    }
+    
+    func setPreset(preset: Preset) {
+        let bands = preset.bands
+        var sectionOffset = 0
+        if bands.count == 4 {
+            getSectionFromAlert { section in
+            sectionOffset = section * 4
+            }
+        }
+        else if bands.count == 8 {
+        } else { return }
+        for (i, band) in bands.enumerated() {
+            let index = i + sectionOffset
+            setBand(value: band, at: index)
+        }
+    }
+    
+    private func getSectionFromAlert(completion: @escaping (Int) -> Void) {
+
+        let alertController = UIAlertController(title: "Select Section", message: "Choose a section", preferredStyle: .actionSheet)
+
+        let section0Action = UIAlertAction(title: "Section 0", style: .default) { _ in
+            completion(0)
+        }
+
+        let section1Action = UIAlertAction(title: "Section 1", style: .default) { _ in
+            completion(1)
+        }
+
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
+        alertController.addAction(section0Action)
+        alertController.addAction(section1Action)
+        alertController.addAction(cancelAction)
+        
+        self.present(alertController, animated: true, completion: nil)
+    }
+}

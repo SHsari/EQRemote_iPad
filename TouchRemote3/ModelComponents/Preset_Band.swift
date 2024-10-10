@@ -7,41 +7,53 @@
 
 import Foundation
 
+struct Zonly: Recordable {
+    let z: Double
+    func z_() -> Double { return z }
+    init(_ z: Double) {
+        self.z = z
+    }
+}
 
-
-
-class Preset: NSCopying {
+class Preset: Recordable {
     
     var bands: [OneBand] = []
     init(bands: [OneBand]) {
         self.bands = bands
     }
-    func copy(with zone: NSZone? = nil) -> Any {
+    func copy() -> Preset {
         var bands: [OneBand] = []
         for band in self.bands {
-            bands.append(band.copy() as! OneBand)
+            bands.append(band.copy())
         }
         let copy = Preset(bands: bands)
         return copy
     }
 }
 
-struct XYPosition {
+struct XYPosition: Recordable, Equatable {
     var x: Double
     var y: Double
     init(x: Double, y: Double) {
         self.x = x
         self.y = y
     }
+    
+    static func == (lhs: XYPosition, rhs: XYPosition) -> Bool {
+        return lhs.x == rhs.x && lhs.y == rhs.y
+    }
 }
 
-class XYZPosition: NSCopying {
-    func copy(with zone: NSZone? = nil) -> Any {
+class XYZPosition: Recordable {
+    func copy(with zone: NSZone? = nil) -> XYZPosition {
         let copy = XYZPosition(x: x, y: y, z: z)
         return copy
     }
     func getXY() -> XYPosition {
         return XYPosition(x: x, y: y)
+    }
+    func getZ() -> Zonly {
+        return Zonly(z)
     }
     
     var x: Double = 0.5
@@ -55,7 +67,7 @@ class XYZPosition: NSCopying {
     
 }
 
-class OneBand: NSCopying {
+class OneBand: Recordable {
     
     var type: FilterType
     var position: XYZPosition
@@ -63,11 +75,11 @@ class OneBand: NSCopying {
     
     init(_ filterType: FilterType = .peak, _ position: XYZPosition = XYZPosition(), _ isOn: Bool = true) {
         self.type = filterType
-        self.position = position.copy() as! XYZPosition
+        self.position = position.copy()
         self.isOn = isOn
     }
     
-    func copy(with zone: NSZone? = nil) -> Any {
+    func copy() -> OneBand {
         let copy = OneBand(type, position, isOn)
         return copy
     }

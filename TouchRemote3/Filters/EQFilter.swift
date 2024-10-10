@@ -32,7 +32,6 @@ class EQFilterClass {
         self.bind = bind
     }
     
-    
     static let typeDict: [FilterType : () -> EQFilterPrtc] = [
         .peak: { Peak() },
         .lowPass: { LowPass() },

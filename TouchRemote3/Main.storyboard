@@ -66,7 +66,7 @@
                                             <imageReference key="image" image="arrow.uturn.backward" catalog="system" symbolScale="large"/>
                                         </state>
                                         <connections>
-                                            <action selector="undo:" destination="BYZ-38-t0r" eventType="touchUpInside" id="k9O-x9-FaW"/>
+                                            <action selector="undo:" destination="BYZ-38-t0r" eventType="touchUpInside" id="6Sr-u6-uxJ"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gnF-Ri-QIW" userLabel="redo">
@@ -79,7 +79,7 @@
                                             <imageReference key="image" image="arrow.uturn.forward" catalog="system" symbolScale="large"/>
                                         </state>
                                         <connections>
-                                            <action selector="redo:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uUo-7y-0nl"/>
+                                            <action selector="redo:" destination="BYZ-38-t0r" eventType="touchUpInside" id="lWd-q6-ulL"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -434,7 +434,8 @@
                         <outlet property="pView8" destination="l1o-vo-D4Z" id="y9I-3H-AvS"/>
                         <outlet property="pViewSection1" destination="1YA-w4-Zcl" id="1NI-X4-9ay"/>
                         <outlet property="pViewSection2" destination="ysy-k1-zWv" id="9dy-dZ-I1H"/>
-                        <outlet property="sectionController" destination="DlE-c0-ES0" id="7KP-j5-xxH"/>
+                        <outlet property="redoBTN" destination="gnF-Ri-QIW" id="yGr-tW-WBF"/>
+                        <outlet property="sectionController" destination="DlE-c0-ES0" id="J8H-mI-Ggc"/>
                         <outlet property="touchMeView" destination="e4r-nX-qgh" id="mNf-eq-Kdg"/>
                         <outlet property="typeMenu1" destination="PdL-oZ-x0d" id="sHS-S1-KK8"/>
                         <outlet property="typeMenu2" destination="Bta-bt-YgV" id="iRH-cU-ULe"/>
@@ -444,6 +445,7 @@
                         <outlet property="typeMenu6" destination="4Px-db-hTu" id="FgJ-Rf-aWo"/>
                         <outlet property="typeMenu7" destination="Rtj-gI-BuC" id="q9k-I6-doH"/>
                         <outlet property="typeMenu8" destination="tAP-4H-bwZ" id="b25-x7-iIC"/>
+                        <outlet property="undoBTN" destination="Kcg-t4-Fbc" id="0ec-Em-dLB"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

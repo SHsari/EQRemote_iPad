@@ -10,11 +10,11 @@ import UIKit
 
 
 let pViewDict: [FilterType : () -> ParameterView] = [
-    .peak: { PView_withSlider() },
+    .peak: { PView_peak() },
     .lowPass: { PView_noSlider() },
     .highPass: { PView_noSlider() },
-    .lowShelf: { PView_withSlider() },
-    .highShelf: { PView_withSlider() }
+    .lowShelf: { PView_shelf() },
+    .highShelf: { PView_shelf() }
 ]
 
 
@@ -43,8 +43,8 @@ protocol ParameterView: UIView {
     func updateXLabel()
     func updateYLabel()
     func updateZLabel()
-    func updateSlider(_ value: Double)
-    func updateWhole(_ slider: Double)
+    func updateSlider()
+    func updateWhole()
     func setViewActive(_ isActive: Bool)
 }
 
@@ -91,10 +91,7 @@ extension PViewClass: UIContextMenuInteractionDelegate {
     
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
         let hitView = self.hitTest(location, with: nil)
-        if hitView is UIButton {
-            print("hitView is UIButton")
-            return nil
-        }
+        if hitView is UIButton { return nil } // LockButton 누른 경우 Interactionn 감지 없음
         
         guard let pTypeConfigurable = interaction.view as? ParameterTypeConfigurable else { return nil }
         let pType = pTypeConfigurable.pType

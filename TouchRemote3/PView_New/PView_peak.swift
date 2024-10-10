@@ -7,7 +7,7 @@
 
 import UIKit
 
-class PView_withSlider: PViewClass, ParameterView {
+class PView_peak: PViewClass, ParameterView {
     
     let xFreqView = LabelSet_freq()
     let yGainView = LabelSet_gain()
@@ -79,7 +79,8 @@ class PView_withSlider: PViewClass, ParameterView {
         delegate?.sliderTouchesBegan(index)
     }
     @objc private func sliderMoved() {
-        delegate?.sliderMoved(Double(QSlider.value))
+        let rValue = Calculate.peakQ(Double(QSlider.value))
+        delegate?.sliderMoved(rValue)
         updateZLabel()
     }
     @objc private func sliderTouchesEnded() {
@@ -100,17 +101,17 @@ class PView_withSlider: PViewClass, ParameterView {
         QLabel.text = String(format: "%.2f", bind.z)
     }
     
-    func updateSlider(_ value: Double) {
-        QSlider.value = Float(value)
+    func updateSlider() {
+        QSlider.value = Float( Calculate.normZwith(peakQ: bind.z) )
+        updateZLabel()
     }
-    func updateWhole(_ slider: Double) {
-        updateXLabel(); updateYLabel(); updateZLabel()
-        updateSlider(slider)
+    func updateWhole() {
+        updateXLabel(); updateYLabel(); updateSlider()
     }
 
 }
 
-extension PView_withSlider: LabelSetDelegate {
+extension PView_peak: LabelSetDelegate {
     
     func didDoubleTap(at pType: ParameterType) {
         if pType == .x {
@@ -128,6 +129,3 @@ extension PView_withSlider: LabelSetDelegate {
         }
     }
 }
-
-
-

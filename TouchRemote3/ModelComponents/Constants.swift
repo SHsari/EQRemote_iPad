@@ -15,9 +15,13 @@ let defaultFilterType: [FilterType] = [.peak, .peak, .peak, .peak, .lowShelf, .p
 
 let factoryPosition = factoryPreset_().bands.map{ $0.position }
 
-func freqToNormPosition(freq: Int) {
-    
-}
+let typeStringDict: [FilterType : String] = [
+    .peak: "Peak",
+    .lowPass: "LowPass",
+    .highPass: "HighPass",
+    .lowShelf: "LowShelf",
+    .highShelf: "HighShelf"
+]
 
 func factoryPreset_() -> Preset {
     let bands: [OneBand] = [
@@ -25,10 +29,10 @@ func factoryPreset_() -> Preset {
         OneBand(.peak, XYZPosition(x: 300, y: 0.0, z: 1.7)),
         OneBand(.peak, XYZPosition(x: 1000, y: 0.0, z: 1.7)),
         OneBand(.peak, XYZPosition(x: 5000, y: 0.0, z: 1.7)),
-        OneBand(.lowShelf, XYZPosition(x: 50, y: 0.0, z: 1.7)),
+        OneBand(.lowShelf, XYZPosition(x: 50, y: 0.0, z: 1.5)),
         OneBand(.peak, XYZPosition(x: 200, y: 0.0, z: 1.7)),
         OneBand(.peak, XYZPosition(x: 2000, y: 0.0, z: 1.7)),
-        OneBand(.highShelf, XYZPosition(x: 8000, y: 0.0, z: 1.7))
+        OneBand(.highShelf, XYZPosition(x: 8000, y: 0.0, z: 1.5))
     ]
     return Preset(bands: bands)
 }

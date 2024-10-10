@@ -42,13 +42,15 @@ class FilterManager {
         filterView.initialize(rootResponse)
     }
     
-    
-    
-    
-    func touchesBegan(at index: Int) {
+    func willBeChange(in index: Int) {
         activeFilter = filters[index]
         responseWillUpdate(at: index)
         filterView.setActiveIndex(index, allResponse[index])
+    }
+    
+    func didChange() {
+        responseUpdated()
+        filterView.responseDidUpdate()
     }
     
     func touchesMoved(_ position: XYPosition) {
@@ -60,7 +62,7 @@ class FilterManager {
     }
     
     func sliderMoved(_ value: Double) {
-        activeFilter.setNormZ(value)
+        activeFilter.setBindZ(value)
         activeFilter.updateResponse()
         responseUpdated()
         filterView.responseDidUpdate()
@@ -79,48 +81,73 @@ class FilterManager {
 
     
     func set(normX: Double, at index: Int) {
-        touchesBegan(at: index)
+        willBeChange(in: index)
         activeFilter.setNormX(normX)
         activeFilter.updateResponse()
-        responseUpdated()
-        filterView.responseDidUpdate()
+        didChange()
     }
     func set(normY: Double, at index: Int) {
-        touchesBegan(at: index)
+        willBeChange(in: index)
         activeFilter.setNormY(normY)
         activeFilter.updateResponse()
-        responseUpdated()
-        filterView.responseDidUpdate()
+        didChange()
     }
     func set(normZ: Double, at index: Int) {
-        touchesBegan(at: index)
+        willBeChange(in: index)
         activeFilter.setNormZ(normZ)
         activeFilter.updateResponse()
-        responseUpdated()
-        filterView.responseDidUpdate()
+        didChange()
     }
-    func set(band: XYZPosition, at index: Int) {
-        touchesBegan(at: index)
-        activeFilter.setNormX(band.x)
-        activeFilter.setNormY(band.y)
-        activeFilter.setNormZ(band.z)
+    
+    func set(bindX: Double, at index: Int) {
+        willBeChange(in: index)
+        activeFilter.setBindX(bindX)
+        activeFilter.updateResponse()
+        didChange()
+    }
+    func set(bindY: Double, at index: Int) {
+        willBeChange(in: index)
+        activeFilter.setBindY(bindY)
         activeFilter.updateResponse()
         responseUpdated()
         filterView.responseDidUpdate()
     }
-    
-    
-    
+    func set(bindZ: Double, at index: Int) {
+        willBeChange(in: index)
+        activeFilter.setBindZ(bindZ)
+        activeFilter.updateResponse()
+        didChange()
+    }
+    func set(xyz: XYZPosition, at index: Int) {
+        willBeChange(in: index)
+        activeFilter.setBindX(xyz.x)
+        activeFilter.setBindY(xyz.y)
+        activeFilter.setBindZ(xyz.z)
+        activeFilter.updateResponse()
+        didChange()
+    }
+    func setBand(band: OneBand, at index: Int) {
+        willBeChange(in: index)
+        let filter = EQFilterClass.typeDict[band.type]!()
+        filter.initialize(allResponse[index], norm[index], bind[index])
+        filters[index] = filter
+        let position = band.position
+        filter.setBindX(position.x)
+        filter.setBindY(position.y)
+        filter.setBindZ(position.z)
+        filter.updateResponse()
+        didChange()
+    }
     
     
     
     func filterTypeChanged(at index: Int, type: FilterType) {
-        touchesBegan(at: index)
+        willBeChange(in: index)
         let filter = EQFilterClass.typeDict[type]!()
         filter.initialize(allResponse[index], norm[index], bind[index])
         filters[index] = filter
-        responseUpdated()
-        filterView.responseDidUpdate()
+        filter.updateResponse()
+        didChange()
     }
     
     func handleOnOff(at index: Int, isOn: Bool) {
@@ -131,8 +158,7 @@ class FilterManager {
         }
         filterView.masterGraphUpdate()
     }
-    
-    
+
     
     private func setRootResponse() {
         let tmp = Response()

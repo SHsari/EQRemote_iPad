@@ -13,7 +13,7 @@ let pTypeStringDict: [ParameterType : String] = [
     .y: "gain",
     .z: "Q",
     .band: "band",
-    .dot: "dot"
+    .dot: "dot",
 ]
 
 enum ParameterType {
