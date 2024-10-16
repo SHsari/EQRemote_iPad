@@ -42,7 +42,7 @@ class EQFilterClass {
 }
 
 
-enum FilterType {
+enum FilterType: Codable {
     case peak
     case lowPass
     case highPass

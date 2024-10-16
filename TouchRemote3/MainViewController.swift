@@ -92,6 +92,7 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        initSaveBtn()
         initBandSwitchColor()
         initTypeMenuOptions()
         
@@ -115,6 +116,12 @@ class MainViewController: UIViewController {
     @IBOutlet weak var redoBTN: UIButton!
     @IBAction func undo(_ sender: UIButton) { taskManager.undo() }
     @IBAction func redo(_ sender: UIButton) { taskManager.redo() }
+    
+    @IBOutlet weak var saveBtn: UIButton!
+
+    @IBAction func load(_ sender: UIButton) {
+        presentFileExplorer(mode: .load, savePreset: [])
+    }
     
     @IBAction func sectionChanged(_ sender: UISegmentedControl) {
         let section = sender.selectedSegmentIndex
@@ -141,6 +148,23 @@ class MainViewController: UIViewController {
 }
 
 extension MainViewController { //initializers
+    private func initSaveBtn() {
+        let section = UIAction(title: "Current section", handler: { [weak self] _ in
+            guard let self = self else { return }
+            let offset = sectionController.selectedSegmentIndex * 4
+            let savePreset = Array(storages[offset..<offset+sectionSize])
+            presentFileExplorer(mode: .save, savePreset: savePreset)
+        })
+        let whole = UIAction(title: "All section", handler: { [weak self] _ in
+            guard let self = self else { return }
+            let savePreset = storages
+            presentFileExplorer(mode: .save, savePreset: savePreset)
+        })
+        let optionsArray = [section, whole]
+        let menu = UIMenu(title: "Choose Section", options: .displayInline, children: optionsArray)
+        saveBtn.menu = menu
+    }
+    
     private func initBandSwitchColor() {
         for (i, switch_) in bandSwitches.enumerated(){
             switch_?.onTintColor = colorDict[i]
@@ -302,7 +326,6 @@ extension MainViewController: TypeInVCDelegate {
 }
 
 
-
 extension MainViewController: TouchMeViewDelegate {
     
     func touchesBegan(_ index: Int) {
@@ -411,18 +434,9 @@ extension MainViewController {
     }
 }
 
-extension MainViewController: BluetoothVCDelegate {
-    func bluetoothConnected(serial: BluetoothSerial) {
-        self.bthDataSender.serial = serial
-        self.bthDataSender.resetAllData(preset: storages)
-    }
-    
-    func btWriteFailed() {
-        
-    }
-}
 
 extension MainViewController: TaskListDelegate {
+    
     
     func setRedoEnable(_ isEnable: Bool) { redoBTN.isEnabled = isEnable }
     func setUndoEnable(_ isEnable: Bool) { undoBTN.isEnabled = isEnable }
@@ -465,33 +479,37 @@ extension MainViewController: TaskListDelegate {
         setFilterMenuSelection(index, type)
         touchMeView.resetDotLock(at: index)
         touchMeView.setPositionDirect(at: index, with: value.getXY())
+        touchMeView.setSectionActive(sectionController.selectedSegmentIndex)
     }
     
     func setPreset(preset: Preset) {
         let bands = preset.bands
-        var sectionOffset = 0
         if bands.count == 4 {
             getSectionFromAlert { section in
-            sectionOffset = section * 4
+            let offset = section * 4
+                for (i, band) in bands.enumerated() {
+                    let index = i + offset
+                    self.setBand(value: band, at: index)
+                }
             }
         }
         else if bands.count == 8 {
+            for (i, band) in bands.enumerated() {
+                setBand(value: band, at: i)
+            }
         } else { return }
-        for (i, band) in bands.enumerated() {
-            let index = i + sectionOffset
-            setBand(value: band, at: index)
-        }
     }
+    
     
     private func getSectionFromAlert(completion: @escaping (Int) -> Void) {
 
-        let alertController = UIAlertController(title: "Select Section", message: "Choose a section", preferredStyle: .actionSheet)
+        let alertController = UIAlertController(title: "Select Section", message: "Choose a section", preferredStyle: .alert)
 
-        let section0Action = UIAlertAction(title: "Section 0", style: .default) { _ in
+        let section0Action = UIAlertAction(title: "Section first", style: .default) { _ in
             completion(0)
         }
 
-        let section1Action = UIAlertAction(title: "Section 1", style: .default) { _ in
+        let section1Action = UIAlertAction(title: "Section second", style: .default) { _ in
             completion(1)
         }
 
@@ -502,5 +520,35 @@ extension MainViewController: TaskListDelegate {
         alertController.addAction(cancelAction)
         
         self.present(alertController, animated: true, completion: nil)
+    }
+}
+
+extension MainViewController: FileExplorerVCDelegate {
+    private func presentFileExplorer(mode: FileExpMode, savePreset: [OneBand]) {
+        let presetVC: FileExplorerViewController
+        if mode == .save {
+            presetVC = FileExplorerViewController(mode: .save, savePreset: savePreset, delegate: self)
+        } else {
+            presetVC = FileExplorerViewController(mode: .load, delegate: self)
+        }
+        let navController = UINavigationController(rootViewController: presetVC)
+        navController.modalPresentationStyle = .pageSheet  // 또는 .pageSheet, .overFullScreen 등
+        present(navController, animated: true, completion: nil)
+    }
+    
+    func presetLoaded(_ preset: [OneBand]) {
+        setPreset(preset: Preset(bands: preset))
+    }
+}
+
+
+extension MainViewController: BluetoothVCDelegate {
+    func bluetoothConnected(serial: BluetoothSerial) {
+        self.bthDataSender.serial = serial
+        self.bthDataSender.resetAllData(preset: storages)
+    }
+    
+    func btWriteFailed() {
+        
     }
 }

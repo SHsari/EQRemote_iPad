@@ -16,7 +16,7 @@ fileprivate let freqDict1: [Double] = [30, 40, 50, 60, 80, 200, 300, 400, 500, 6
 fileprivate let freqDict2: [Double] = [100, 1000, 10000]
 
 fileprivate let normX1 = freqToNormPos(freq: freqDict1)
-fileprivate  let normX2 = freqToNormPos(freq: freqDict2)
+fileprivate let normX2 = freqToNormPos(freq: freqDict2)
 
 class GridView: UIView {
     var standardFrame: CGRect
@@ -36,11 +36,11 @@ class GridView: UIView {
         guard let context = UIGraphicsGetCurrentContext() else { return }
 
         // 그리드 라인 그리기
-        drawGridLines(in: context, yLines: 5)
+        drawDBLines(in: context, yLines: 5)
     }
     
 
-    private func drawGridLines(in context: CGContext, yLines: Int) {
+    private func drawDBLines(in context: CGContext, yLines: Int) {
         let rect = standardFrame
         context.setStrokeColor(UIColor.white.cgColor)
         

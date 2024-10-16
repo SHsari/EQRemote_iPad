@@ -27,10 +27,10 @@
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="S0M-Dp-pR2">
-                                <rect key="frame" x="20" y="34" width="210" height="32"/>
+                                <rect key="frame" x="20" y="34" width="270" height="30"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PLa-XC-pfL">
-                                        <rect key="frame" x="0.0" y="4.5" width="50" height="23"/>
+                                        <rect key="frame" x="0.0" y="3.5" width="50" height="23"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="50" id="7LJ-2y-RQE"/>
                                         </constraints>
@@ -42,22 +42,33 @@
                                             <action selector="bluetoothButtonPushed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="pam-nY-0wu"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" showsMenuAsPrimaryAction="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pTr-ne-dc7">
-                                        <rect key="frame" x="60" y="0.0" width="50" height="32"/>
+                                    <button opaque="NO" contentMode="scaleToFill" showsMenuAsPrimaryAction="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DCr-kH-KhG" userLabel="Save">
+                                        <rect key="frame" x="60" y="0.0" width="50" height="30"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="50" id="zuP-3Z-3Hy"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                        <menu key="menu" id="ev1-5S-bKV">
+                                            <children>
+                                                <command title="Section 1" id="MDu-cP-84O"/>
+                                                <command title="Section 2" id="YFp-t5-a25"/>
+                                                <command title="Both" id="9aj-3d-VKI"/>
+                                            </children>
+                                        </menu>
+                                        <state key="normal" title="Save"/>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" showsMenuAsPrimaryAction="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pTr-ne-dc7" userLabel="Load">
+                                        <rect key="frame" x="120" y="0.0" width="50" height="30"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="50" id="v4m-1H-KaL"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                                        <menu key="menu" id="s4X-wP-Kef">
-                                            <children>
-                                                <command title="Item 1" id="8JE-j9-ZRO"/>
-                                                <command title="Item 2" id="ah2-jb-Vv1"/>
-                                            </children>
-                                        </menu>
-                                        <state key="normal" title="preset"/>
+                                        <state key="normal" title="Load"/>
+                                        <connections>
+                                            <action selector="load:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Cdw-mU-871"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Kcg-t4-Fbc" userLabel="undo">
-                                        <rect key="frame" x="120" y="4" width="40" height="24"/>
+                                        <rect key="frame" x="180" y="3" width="40" height="24"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="40" id="lJ8-LW-1dX"/>
                                         </constraints>
@@ -70,7 +81,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gnF-Ri-QIW" userLabel="redo">
-                                        <rect key="frame" x="170" y="4" width="40" height="24"/>
+                                        <rect key="frame" x="230" y="3" width="40" height="24"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="40" id="Tsj-Aw-e0A"/>
                                         </constraints>
@@ -435,6 +446,7 @@
                         <outlet property="pViewSection1" destination="1YA-w4-Zcl" id="1NI-X4-9ay"/>
                         <outlet property="pViewSection2" destination="ysy-k1-zWv" id="9dy-dZ-I1H"/>
                         <outlet property="redoBTN" destination="gnF-Ri-QIW" id="yGr-tW-WBF"/>
+                        <outlet property="saveBtn" destination="DCr-kH-KhG" id="RUZ-hs-N3p"/>
                         <outlet property="sectionController" destination="DlE-c0-ES0" id="J8H-mI-Ggc"/>
                         <outlet property="touchMeView" destination="e4r-nX-qgh" id="mNf-eq-Kdg"/>
                         <outlet property="typeMenu1" destination="PdL-oZ-x0d" id="sHS-S1-KK8"/>

@@ -15,7 +15,7 @@ struct Zonly: Recordable {
     }
 }
 
-class Preset: Recordable {
+class Preset: Recordable, Codable {
     
     var bands: [OneBand] = []
     init(bands: [OneBand]) {
@@ -44,7 +44,7 @@ struct XYPosition: Recordable, Equatable {
     }
 }
 
-class XYZPosition: Recordable {
+class XYZPosition: Recordable, Codable {
     func copy(with zone: NSZone? = nil) -> XYZPosition {
         let copy = XYZPosition(x: x, y: y, z: z)
         return copy
@@ -67,7 +67,7 @@ class XYZPosition: Recordable {
     
 }
 
-class OneBand: Recordable {
+class OneBand: Recordable, Codable {
     
     var type: FilterType
     var position: XYZPosition
