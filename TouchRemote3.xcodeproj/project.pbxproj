@@ -153,10 +153,10 @@
 		663927D52C6DE0E6009D38BD /* TouchRemote3 */ = {
 			isa = PBXGroup;
 			children = (
-				66EE0ECE2CBFDCCD00B99B50 /* PresetExplorer */,
 				663928492C6E6D62009D38BD /* Main.storyboard */,
 				663927DA2C6DE0E6009D38BD /* MainViewController.swift */,
 				66DA2B4B2CA3702800D667BE /* FilterManager.swift */,
+				66A459C72CBAD63D006DDE21 /* PresetExplorer.swift */,
 				668F82C62CB471C2002C7868 /* TypeInVC */,
 				668F82C42CB4710C002C7868 /* Bluetooth */,
 				663928362C6DF18A009D38BD /* Filters */,
@@ -233,8 +233,8 @@
 			isa = PBXGroup;
 			children = (
 				6639285C2C6FBD5D009D38BD /* BluetoothVC.storyboard */,
-				6639285E2C6FBD6C009D38BD /* BluetoothSerial.swift */,
 				6639285A2C6FB940009D38BD /* BluetoothVC.swift */,
+				6639285E2C6FBD6C009D38BD /* BluetoothSerial.swift */,
 				66D2BEF32C73A16A00F7B975 /* BluetoothDataSender.swift */,
 			);
 			path = Bluetooth;
@@ -284,14 +284,6 @@
 				66967E372CA8532700E0AC57 /* ParameterLabel.swift */,
 			);
 			path = components;
-			sourceTree = "<group>";
-		};
-		66EE0ECE2CBFDCCD00B99B50 /* PresetExplorer */ = {
-			isa = PBXGroup;
-			children = (
-				66A459C72CBAD63D006DDE21 /* PresetExplorer.swift */,
-			);
-			path = PresetExplorer;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -557,11 +549,13 @@
 				DEVELOPMENT_TEAM = 4SR72F88BS;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TouchRemote3/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = EQSimulator;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = ABC;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -569,9 +563,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = Shsari.TouchRemote3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Debug;
 		};
@@ -585,11 +582,13 @@
 				DEVELOPMENT_TEAM = 4SR72F88BS;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TouchRemote3/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = EQSimulator;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = ABC;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -597,9 +596,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = Shsari.TouchRemote3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Release;
 		};

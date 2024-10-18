@@ -39,7 +39,9 @@ class BluetoothSerial: NSObject {
     var serialService: CBService?
     var pioService: CBService?
     var pioOutputCharistic: CBCharacteristic?
-    var pendingData = Data()
+    var pendingData: [Data] = []
+
+    var shouldSuccess: Int = 0
     var repeating = 0
     
     override init() {
@@ -56,14 +58,17 @@ class BluetoothSerial: NSObject {
         guard let peripheral = connectedPeripheral else { return }
         centralManager.cancelPeripheralConnection(peripheral)
     }
-
     
     func sendDataToHW(_ data: Data) {
-        pendingData = data
-        print("dataLength: \(data) ")
         connectedPeripheral?.writeValue(data, for: serialWriteCharistic!, type: .withResponse)
     }
     
+    func sendDataToHW_should(_ data: Data, at index: Int) {
+        guard let peripheral = connectedPeripheral else { return }
+        shouldSuccess += 1
+        pendingData.append(data)
+        peripheral.writeValue(data, for: serialWriteCharistic!, type: .withResponse)
+    }
 }
 
 
@@ -91,25 +96,27 @@ extension BluetoothSerial: CBCentralManagerDelegate, CBPeripheralDelegate {
         peripheral.delegate = self
         peripheral.discoverServices(serviceUUIDArray)
         connectedPeripheral = peripheral
+        self.centralManager.stopScan()
     }
     
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: (any Error)?) {
         if peripheral == connectedPeripheral {
             connectedPeripheral = nil
         }
+        self.discoveredPeripherals = []
         delegate?.btDisconnectionHandler(error: error)
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?){
         guard let services = peripheral.services else { return }
-                for service in services {
-                    if serviceUUIDArray.contains(service.uuid) {
-                        print("service Found!")
-                        self.serialService = service
-                        peripheral.discoverCharacteristics(characteristicUUIDArray, for: service)
-                        break
-                    }
-                }
+        for service in services {
+            if serviceUUIDArray.contains(service.uuid) {
+                print("service Found!")
+                self.serialService = service
+                peripheral.discoverCharacteristics(characteristicUUIDArray, for: service)
+                break
+            }
+        }
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: (any Error)?) {
@@ -119,7 +126,6 @@ extension BluetoothSerial: CBCentralManagerDelegate, CBPeripheralDelegate {
                 print("characteristic Found!")
                 self.serialWriteCharistic = characteristic
                 centralManager.stopScan()
-                
                 let length = peripheral.maximumWriteValueLength(for: .withResponse)
                 print("maximumWriteValueLength: \(length) Byte")
                 break
@@ -130,21 +136,18 @@ extension BluetoothSerial: CBCentralManagerDelegate, CBPeripheralDelegate {
 
     
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: (any Error)?) {
-        if error == nil {
-            repeating = 0
-            //numberOfsuccess += 1
-            //print("success: \(numberOfsuccess)")
-        }
-        else if repeating < 5 {
-            peripheral.writeValue(pendingData, for: serialWriteCharistic!, type: .withResponse)
-            repeating += 1
-            print("repeating")
-        }
-        else {
-            print("failed")
-            repeating = 0
-            print("Write failed with error: \(error!.localizedDescription)")
-            delegate?.btWriteFailed()
+        if !pendingData.isEmpty {
+            if error == nil { pendingData.removeFirst() }
+            else if repeating < 5 {
+                connectedPeripheral?.writeValue(pendingData[0], for: serialWriteCharistic!, type: .withResponse)
+                repeating += 1
+            }
+            else {
+                repeating = 0
+                pendingData = []
+                //print("Write failed with error: \(error!.localizedDescription)")
+                delegate?.btWriteFailed()
+            }
         }
     }
 }

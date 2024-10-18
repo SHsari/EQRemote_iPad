@@ -15,7 +15,7 @@ enum FileExpMode {
 }
 
 protocol FileExplorerVCDelegate: AnyObject {
-    func presetLoaded(_ preset: [OneBand])
+    func presetLoaded(_ preset: [OneBand], for section: Int?)
 }
 
 class FileExplorerViewController: UIViewController {
@@ -83,7 +83,7 @@ class FileExplorerViewController: UIViewController {
     
     func configureNavigationBar() {
         if mode == .save {
-            let addFolderBtn = UIBarButtonItem(image: UIImage(named: "plus"), style: .plain, target: self, action: #selector(addFolder))
+            let addFolderBtn = UIBarButtonItem(image: UIImage(systemName: "plus"), style: .plain, target: self, action: #selector(addFolder))
             let saveBtn = UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(saveHere))
             navigationItem.rightBarButtonItems = [addFolderBtn, saveBtn]
         } else if mode == .load {
@@ -133,14 +133,43 @@ class FileExplorerViewController: UIViewController {
     
     @objc func loadSelectedFile() {
         guard let selectedIndex = selectedIndex else { return }
-        if let preset = Explorer.load(file: files[selectedIndex.row]) {
-            dismiss(animated: true){ [weak self] in
-                self?.delegate?.presetLoaded(preset)
+        loadFile(at: selectedIndex)
+    }
+    
+    private func loadFile(at indexPath: IndexPath) {
+        if let preset = Explorer.load(file: files[indexPath.row]) {
+            if preset.count == 4 {
+                getSectionFromAlert { [weak self] section in
+                    guard let self = self else { return }
+                    self.dismiss(animated: true) {
+                        self.delegate?.presetLoaded(preset, for: section)
+                    }
+                }
+            } else if preset.count == 8 {
+                dismiss(animated: true){ [weak self] in
+                    self?.delegate?.presetLoaded(preset, for: nil)
+                }
             }
         }
     }
-
     
+    private func getSectionFromAlert(completion: @escaping (Int) -> Void) {
+
+        let alertController = UIAlertController(title: "Select Section", message: "Choose a section", preferredStyle: .alert)
+        let section0Action = UIAlertAction(title: "Section first", style: .default) { _ in
+            completion(0)
+        }
+        let section1Action = UIAlertAction(title: "Section second", style: .default) { _ in
+            completion(1)
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
+        alertController.addAction(section0Action)
+        alertController.addAction(section1Action)
+        alertController.addAction(cancelAction)
+        
+        self.present(alertController, animated: true, completion: nil)
+    }
 
     
     @objc func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
@@ -149,6 +178,7 @@ class FileExplorerViewController: UIViewController {
             if let indexPath = self.filesTableView.indexPathForRow(at: point) {
                 var fileURL: URL
                 let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+
                 
                 if indexPath.section == 0 { fileURL = directories[indexPath.row] }
                 else { // file 선택시
@@ -167,11 +197,7 @@ class FileExplorerViewController: UIViewController {
                     } else if mode == .load {
                         let loadAction = UIAlertAction(title: "Load", style: .default) { [weak self] _ in
                             guard let self = self else { return }
-                            if let preset = Explorer.load(file: fileURL){
-                                dismiss(animated: true){
-                                    self.delegate?.presetLoaded(preset)
-                                }
-                            }
+                            self.loadFile(at: indexPath)
                         }
                         alertController.addAction(loadAction)
                     }
@@ -287,16 +313,15 @@ extension FileExplorerViewController: UITableViewDelegate, UITableViewDataSource
         } else {
             if mode == .load {
                 if selectedIndex == indexPath {
-                    guard let cell = tableView.cellForRow(at: indexPath) else { return }
-                    selectedIndex = nil
-                    cell.accessoryType = .none
-                    loadButton.isEnabled = false
-                }
-                else {
-                    if let selectedIndex = selectedIndex {
-                        if let cell = tableView.cellForRow(at: selectedIndex) {
-                            cell.accessoryType = .none
-                        }
+                    if let cell = tableView.cellForRow(at: indexPath) {
+                        selectedIndex = nil
+                        loadButton.isEnabled = false
+                        cell.accessoryType = .none
+                        tableView.deselectRow(at: indexPath, animated: true)
+                    }
+                } else {
+                    if let oldIndex = selectedIndex, let oldCell = tableView.cellForRow(at: oldIndex) {
+                        oldCell.accessoryType = .none
                     }
                     if let cell = tableView.cellForRow(at: indexPath) {
                         cell.accessoryType = .checkmark
@@ -304,12 +329,9 @@ extension FileExplorerViewController: UITableViewDelegate, UITableViewDataSource
                         loadButton.isEnabled = true
                     }
                 }
-                tableView.deselectRow(at: indexPath, animated: true)
             }
         }
     }
-
-    
 }
 
 

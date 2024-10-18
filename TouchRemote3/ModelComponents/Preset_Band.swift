@@ -75,12 +75,12 @@ class OneBand: Recordable, Codable {
     
     init(_ filterType: FilterType = .peak, _ position: XYZPosition = XYZPosition(), _ isOn: Bool = true) {
         self.type = filterType
-        self.position = position.copy()
+        self.position = position
         self.isOn = isOn
     }
     
     func copy() -> OneBand {
-        let copy = OneBand(type, position, isOn)
+        let copy = OneBand(type, position.copy(), isOn)
         return copy
     }
     

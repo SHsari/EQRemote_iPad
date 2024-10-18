@@ -21,19 +21,29 @@ class BluetoothDataSender {
         true: UInt8(0b00001111),
         false: UInt8(0b00001000)
     ]
-    private let sendInterval = 1
+    
+    private let sendInterval = 2
     
     var serial: BluetoothSerial?
     let positionData = UInt8(0b11100000)
-    let normXData = UInt8(0b00010000)
-    let normYData = UInt8(0b00100000)
-    let normZData = UInt8(0b00110000)
+    let xData = UInt8(0b00010000)
+    let yData = UInt8(0b00100000)
+    let zData = UInt8(0b00110000)
     let onOffData = UInt8(0b01000000)
     let bandData = UInt8(0b01010000)
     
     var pendingData: [Data] = []
     var intervalCount = 0
     var count = 0
+    var activeIndex: Int = -1
+    
+    var storage: [OneBand] = []
+    var bind: [XYZPosition] = []
+    
+    init(storage: [OneBand], bind: [XYZPosition]) {
+        self.storage = storage
+        self.bind = bind
+    }
     
     private func doubleToFloatData(_ value: Double) -> Data {
         var x = Float(value)
@@ -41,11 +51,34 @@ class BluetoothDataSender {
         return Data(bytes)
     }
     
-    func sendXYdata(at index: Int, xy: XYPosition, interval: Bool = true) {
+    func willSendData(at index: Int) {
+        activeIndex = index
+    }
+    
+    func sendLastZData() {
+        isSendingZ = false
+        intervalCount = 0
+        var data = Data()
+        let firstByte = zData | UInt8(activeIndex)
+        data.append(firstByte)
+        data.append(doubleToFloatData(bind[activeIndex].z))
+        serial?.sendDataToHW_should(data, at: activeIndex)
+    }
+    func sendLastXYData() {
+        isSendingXY = false
+        intervalCount = 0
+        var data = Data()
+        let firstByte = positionData | UInt8(activeIndex)
+        data.append(firstByte)
+        data.append(doubleToFloatData(bind[activeIndex].x))
+        data.append(doubleToFloatData(bind[activeIndex].y))
+        serial?.sendDataToHW(data)
+    }
+    
+    func sendXYdata(xy: XYPosition) {
         guard let serial = serial else { return }
-        if !interval || intervalCount >= sendInterval {
-            count += 1
-            print(count)
+        let index = activeIndex
+        if intervalCount >= sendInterval {
             intervalCount = 0
             var data = Data()
             let firstByte = positionData | UInt8(index)
@@ -56,12 +89,13 @@ class BluetoothDataSender {
         } else { intervalCount += 1 }
     }
     
-    func sendZdata(at index: Int, z: Double, interval: Bool = true) {
+    func sendZdata(z: Double) {
         guard let serial = serial else { return }
-        if !interval || intervalCount == sendInterval {
+        let index = activeIndex
+        if intervalCount == sendInterval {
             intervalCount = 0
             var data = Data()
-            let firstByte = normZData | UInt8(index)
+            let firstByte = zData | UInt8(index)
             data.append(firstByte)
             data.append(doubleToFloatData(z))
             serial.sendDataToHW(data)
@@ -75,7 +109,7 @@ class BluetoothDataSender {
         data.append(firstByte)
         let typeByte = boolToData[isOn]!
         data.append(typeByte)
-        serial.sendDataToHW(data)
+        serial.sendDataToHW_should(data, at: index)
     }
     
     func sendBandData(at index: Int, band: OneBand) {
@@ -90,7 +124,7 @@ class BluetoothDataSender {
         data.append(doubleToFloatData(position.y))
         data.append(doubleToFloatData(position.z))
         
-        serial.sendDataToHW(data)
+        serial.sendDataToHW_should(data, at: index)
         //print("dataLength: \(data.count) byte ")
     }
     

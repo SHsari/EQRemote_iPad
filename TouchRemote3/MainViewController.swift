@@ -62,15 +62,14 @@ class MainViewController: UIViewController {
     var storages: [OneBand] = []
     
     var activePView: ParameterView = PView_peak()
-    
     var taskManager: TaskList
     
-    var bthDataSender = BluetoothDataSender()
-    var bluetoothVC: BluetoothVC?
+    var bthDataSender: BluetoothDataSender
+    lazy var bluetoothVC = BluetoothVC()
     
     var pendingTask: Recordable = factoryPreset_()
     var taskIndex: Int = -1
-
+    var alertSection: Int = -1
     
     required init?(coder: NSCoder) {
         
@@ -83,7 +82,7 @@ class MainViewController: UIViewController {
         }
         filterManager.initialize(storage: storages, norm: norm)
         taskManager = TaskList(storage: storages, bind: bind)
-        
+        bthDataSender = BluetoothDataSender(storage: storages, bind: bind)
         super.init(coder: coder)
         taskManager.delegate = self
     }
@@ -92,6 +91,10 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        undoBTN.isEnabled = false
+        redoBTN.isEnabled = false
+        
+        initializeBTVC()
         initSaveBtn()
         initBandSwitchColor()
         initTypeMenuOptions()
@@ -127,12 +130,17 @@ class MainViewController: UIViewController {
         let section = sender.selectedSegmentIndex
         sectionChange(section)
     }
+    
     func sectionChange(_ section: Int) {
         touchMeView.setSectionActive(section)
         filterView.setSectionActive(section)
         let isSection1Selected = section == 0
         pViewSection1.isHidden = !isSection1Selected
         pViewSection2.isHidden = isSection1Selected
+    }
+    
+    @IBAction func bluetoothBtn(_ sender: UIButton) {
+        self.present(bluetoothVC, animated: true)
     }
     
     @IBAction func filterOnOffSwitch(_ sender: UISwitch) {
@@ -148,6 +156,14 @@ class MainViewController: UIViewController {
 }
 
 extension MainViewController { //initializers
+    private func initializeBTVC() {
+        let storyboard = UIStoryboard(name: "BluetoothVC", bundle: nil)
+        if let btVC = storyboard.instantiateViewController(withIdentifier: "BluetoothVC") as? BluetoothVC {
+            btVC.modalPresentationStyle = .formSheet
+            self.bluetoothVC = btVC
+        }
+    }
+    
     private func initSaveBtn() {
         let section = UIAction(title: "Current section", handler: { [weak self] _ in
             guard let self = self else { return }
@@ -225,8 +241,12 @@ extension MainViewController: PViewDelegate {
     func sliderTouchesBegan(_ index: Int) {
         taskManager.sliderWillMove(at: index)
         filterManager.willBeChange(in: index)
+        bthDataSender.willSendData(at: index)
     }
-    func sliderMoved(_ value: Double) { filterManager.sliderMoved(value) }
+    func sliderMoved(_ value: Double) {
+        bthDataSender.sendZdata(z: value)
+        filterManager.sliderMoved(value)
+    }
     func sliderTouchesEnded() {
         taskManager.sliderDidMove()
     }
@@ -363,20 +383,6 @@ extension MainViewController {
         touchMeView.resetDotLock(at: index)
         taskManager.bandDidChange()
     }
-    /*
-    private func setBandByPreset(_ index: Int) {
-        setFilterMenuSelection(index, band.type)
-        setPViewWithPreset(index, band.type, 0.5)
-        touchMeView.setDotByPreset(index: index, value: band.getXY())
-        filterView.responseDidUpdate()
-    }
-
-    private func setByPreset() {
-        for i in 0..<bands.count {
-            setBandByPreset(i)
-        }
-        filterView.masterGraphUpdate()
-    }*/
     
     func changePview(at index: Int, type: FilterType) {
         parameterViews[index].removeFromSuperview()
@@ -391,8 +397,6 @@ extension MainViewController {
         newView.updateZLabel()
         newView.updateSlider()
     }
-    
-    
     
     /*
     private func changePview(at index: Int, type: FilterType) {
@@ -419,6 +423,7 @@ extension MainViewController {
         } else { fatalError() }
     }
     */
+    
     private func setFilterMenuSelection(_ index: Int, _ type: FilterType) {
         guard let typeString = typeStringDict[type] else {return}
         guard let button = typeMenu[index] else {return}
@@ -436,7 +441,6 @@ extension MainViewController {
 
 
 extension MainViewController: TaskListDelegate {
-    
     
     func setRedoEnable(_ isEnable: Bool) { redoBTN.isEnabled = isEnable }
     func setUndoEnable(_ isEnable: Bool) { undoBTN.isEnabled = isEnable }
@@ -482,44 +486,15 @@ extension MainViewController: TaskListDelegate {
         touchMeView.setSectionActive(sectionController.selectedSegmentIndex)
     }
     
-    func setPreset(preset: Preset) {
-        let bands = preset.bands
-        if bands.count == 4 {
-            getSectionFromAlert { section in
-            let offset = section * 4
-                for (i, band) in bands.enumerated() {
-                    let index = i + offset
-                    self.setBand(value: band, at: index)
-                }
-            }
-        }
-        else if bands.count == 8 {
-            for (i, band) in bands.enumerated() {
-                setBand(value: band, at: i)
-            }
-        } else { return }
-    }
-    
-    
-    private func getSectionFromAlert(completion: @escaping (Int) -> Void) {
-
-        let alertController = UIAlertController(title: "Select Section", message: "Choose a section", preferredStyle: .alert)
-
-        let section0Action = UIAlertAction(title: "Section first", style: .default) { _ in
-            completion(0)
-        }
-
-        let section1Action = UIAlertAction(title: "Section second", style: .default) { _ in
-            completion(1)
-        }
-
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+    func setPreset(preset: [OneBand], at section: Int?) {
+        var offset: Int = 0
         
-        alertController.addAction(section0Action)
-        alertController.addAction(section1Action)
-        alertController.addAction(cancelAction)
-        
-        self.present(alertController, animated: true, completion: nil)
+        if let section = section, preset.count == 4 {
+            offset = section * 4
+        }
+        for (i, band) in preset.enumerated() {
+            setBand(value: band, at: i+offset)
+        }
     }
 }
 
@@ -536,19 +511,24 @@ extension MainViewController: FileExplorerVCDelegate {
         present(navController, animated: true, completion: nil)
     }
     
-    func presetLoaded(_ preset: [OneBand]) {
-        setPreset(preset: Preset(bands: preset))
+    func presetLoaded(_ preset: [OneBand], for section: Int?) {
+        taskManager.presetWillset()
+        setPreset(preset: preset, at: section)
+        taskManager.presetDidset()
     }
 }
 
 
 extension MainViewController: BluetoothVCDelegate {
+    func bluetoothDisconnected(alert: UIAlertController) {
+        self.present(alert, animated: true)
+        self.bthDataSender.serial = nil
+    }
+    
     func bluetoothConnected(serial: BluetoothSerial) {
         self.bthDataSender.serial = serial
         self.bthDataSender.resetAllData(preset: storages)
     }
     
-    func btWriteFailed() {
-        
-    }
+    func btWriteFailed() {    }
 }

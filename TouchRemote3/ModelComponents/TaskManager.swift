@@ -28,7 +28,7 @@ protocol TaskListDelegate: MainViewController {
     func setDot(value: XYPosition, at index: Int)
     func setXYZ(value: XYZPosition, at index: Int)
     func setBand(value: OneBand, at index: Int)
-    func setPreset(preset: Preset)
+    func setPreset(preset: [OneBand], at section: Int?)
     func setRedoEnable(_ isEnable: Bool)
     func setUndoEnable(_ isEnable: Bool)
 }
@@ -106,10 +106,10 @@ class TaskList {
     
     func presetWillset() {
         activeIndex = nil
-        pendingRecord = Preset(bands: storage)
+        pendingRecord = Preset(bands: storage).copy()
     }
     func presetDidset() {
-        let recordPreset = Preset(bands: storage)
+        let recordPreset = Preset(bands: storage).copy()
         listAppend(before: pendingRecord, after: recordPreset)
     }
     
@@ -161,7 +161,7 @@ class TaskList {
         case let bandRecord as OneBand:
             delegate?.setBand(value: bandRecord, at: index!)
         case let presetRecord as Preset:
-            delegate?.setPreset(preset: presetRecord)
+            delegate?.setPreset(preset: presetRecord.bands, at: nil)
         default:
             return
         }
