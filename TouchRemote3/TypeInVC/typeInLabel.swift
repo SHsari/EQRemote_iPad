@@ -29,7 +29,7 @@ class TypeInLabel: UILabel {
     }
     
     func append(char: String) {
-        if var text = text, text.count > 1, isTyping {
+        if let text = text, text.count > 1, isTyping {
             self.text = text + char
         } else {
             isTyping = true

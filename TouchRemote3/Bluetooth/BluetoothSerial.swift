@@ -16,15 +16,18 @@ let serviceUUIDArray = [fb301ServiceUUID, hm10ServiceUUID]
 let characteristicUUIDArray = [fb301CharisticUUID, hm10CharacteristicUUID]
 
 protocol BluetoothSerialDelegate: BluetoothVC {
-    func didDiscoverNewPeripheral()
+    func didDiscoverNewPeripheral(_ lastIndex: Int)
     func bluetoothConnected()
     func btWriteFailed()
     func btDisconnectionHandler(error: (any Error)?)
+    func updateRssi(rssi: NSNumber, at row: Int)
+    func didRemovePeripheral(at index: Int)
 }
 
 struct PeripheralInfo {
     var peripheral: CBPeripheral
     var rssi: NSNumber
+    var lastSeen: Date
 }
 
 class BluetoothSerial: NSObject {
@@ -34,14 +37,14 @@ class BluetoothSerial: NSObject {
     var discoveredPeripherals: [PeripheralInfo] = []
     weak var delegate: BluetoothSerialDelegate?
     
+    var timer: Timer?
+    
     var connectedPeripheral: CBPeripheral?
     var serialWriteCharistic: CBCharacteristic?
     var serialService: CBService?
     var pioService: CBService?
     var pioOutputCharistic: CBCharacteristic?
     var pendingData: [Data] = []
-
-    var shouldSuccess: Int = 0
     var repeating = 0
     
     override init() {
@@ -65,9 +68,35 @@ class BluetoothSerial: NSObject {
     
     func sendDataToHW_should(_ data: Data, at index: Int) {
         guard let peripheral = connectedPeripheral else { return }
-        shouldSuccess += 1
         pendingData.append(data)
         peripheral.writeValue(data, for: serialWriteCharistic!, type: .withResponse)
+    }
+    
+    private func removeOutdatedPeripherals() {
+        let timeout: TimeInterval = 10
+        let timeout2: TimeInterval = 2
+        let currentTime = Date()
+        
+        for (index, info) in discoveredPeripherals.enumerated() {
+            if currentTime.timeIntervalSince(info.lastSeen) > timeout {
+                discoveredPeripherals.remove(at: index)
+                delegate?.didRemovePeripheral(at: index)
+            } else if currentTime.timeIntervalSince(info.lastSeen) > timeout2 {
+                let rssi = NSNumber(-150)
+                discoveredPeripherals[index].rssi = NSNumber(-150)
+                delegate?.updateRssi(rssi: rssi, at: index)
+            }
+        }
+    }
+    
+    private func startPeripheralCleanupTimer() {
+        self.timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] timer in
+            self?.removeOutdatedPeripherals()
+        }
+    }
+    
+    private func stopTimer() {
+        self.timer?.invalidate(); self.timer = nil
     }
 }
 
@@ -77,18 +106,23 @@ extension BluetoothSerial: CBCentralManagerDelegate, CBPeripheralDelegate {
         switch central.state {
         case .poweredOn:
             print("Bluetooth is powered on.")
-            // 스캔 시작: 서비스 UUIDs를 nil로 설정하면 모든 디바이스를 스캔
             centralManager.scanForPeripherals(withServices: serviceUUIDArray , options: nil)
+            startPeripheralCleanupTimer()
+        case .poweredOff:
+            print("Bluetooth is powered off.")
         default: return
         }
     }
     
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
-        let newPeripheralInfo = PeripheralInfo(peripheral: peripheral, rssi: RSSI)
-        if !discoveredPeripherals.contains(where: { $0.peripheral.identifier == peripheral.identifier }) {
+        if let index = discoveredPeripherals.firstIndex(where: {$0.peripheral.identifier == peripheral.identifier} ) {
+            discoveredPeripherals[index].rssi = RSSI
+            discoveredPeripherals[index].lastSeen = Date()
+            delegate?.updateRssi(rssi: RSSI, at: index)
+        } else {
+            let newPeripheralInfo = PeripheralInfo(peripheral: peripheral, rssi: RSSI, lastSeen: Date())
             discoveredPeripherals.append(newPeripheralInfo)
-            //discoveredPeripherals.sort { $0.rssi.intValue > $1.rssi.intValue }
-            delegate?.didDiscoverNewPeripheral()
+            delegate?.didDiscoverNewPeripheral(discoveredPeripherals.count - 1)
         }
     }
     
@@ -96,14 +130,12 @@ extension BluetoothSerial: CBCentralManagerDelegate, CBPeripheralDelegate {
         peripheral.delegate = self
         peripheral.discoverServices(serviceUUIDArray)
         connectedPeripheral = peripheral
-        self.centralManager.stopScan()
     }
     
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: (any Error)?) {
         if peripheral == connectedPeripheral {
             connectedPeripheral = nil
         }
-        self.discoveredPeripherals = []
         delegate?.btDisconnectionHandler(error: error)
     }
     
@@ -128,10 +160,18 @@ extension BluetoothSerial: CBCentralManagerDelegate, CBPeripheralDelegate {
                 centralManager.stopScan()
                 let length = peripheral.maximumWriteValueLength(for: .withResponse)
                 print("maximumWriteValueLength: \(length) Byte")
+                
+                stopTimer()
+                discoveredPeripherals.removeAll{ info in
+                    return info.peripheral.identifier != connectedPeripheral?.identifier
+                }
+                self.centralManager.stopScan()
+                delegate?.bluetoothConnected()
+                
                 break
             }
         }
-        delegate?.bluetoothConnected()
+
     }
 
     

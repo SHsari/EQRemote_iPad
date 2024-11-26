@@ -12,6 +12,7 @@ class PView_noSlider: PViewClass, ParameterView {
     let xFreqView = LabelSet_freq()
     let yGainView = LabelSet_gain()
     let zQView = LabelSet_peakQ()
+    let stackView1 = UIStackView()
     
     lazy var freqLabel = xFreqView.mainLabel
     lazy var gainLabel = yGainView.mainLabel
@@ -30,11 +31,9 @@ class PView_noSlider: PViewClass, ParameterView {
         setupActions()
     }
 
-    
     func setInternalLayout() {
         self.translatesAutoresizingMaskIntoConstraints = false
                 
-        let stackView1 = UIStackView()
         addArrangedSubview(stackView1)
         addArrangedSubview(zQView)
         

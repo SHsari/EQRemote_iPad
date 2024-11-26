@@ -75,9 +75,6 @@ class FilterManager {
     private func responseUpdated() {
         rootResponse.dB = pendingResp + activeResponse.dB
     }
-    
-    
-    
 
     
     func set(normX: Double, at index: Int) {
@@ -118,11 +115,20 @@ class FilterManager {
         activeFilter.updateResponse()
         didChange()
     }
-    func set(xyz: XYZPosition, at index: Int) {
+    func setBind(xyz: XYZPosition, at index: Int) {
         willBeChange(in: index)
         activeFilter.setBindX(xyz.x)
         activeFilter.setBindY(xyz.y)
         activeFilter.setBindZ(xyz.z)
+        activeFilter.updateResponse()
+        didChange()
+    }
+    
+    func setNorm(xyz: XYZPosition, at index: Int) {
+        willBeChange(in: index)
+        activeFilter.setNormX(xyz.x)
+        activeFilter.setNormY(xyz.y)
+        activeFilter.setNormZ(xyz.z)
         activeFilter.updateResponse()
         didChange()
     }

@@ -10,6 +10,7 @@ import UIKit
 
 class LabelSet_peakQ: LabelSet {
     
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.pType = .z
@@ -37,10 +38,9 @@ class LabelSet_peakQ: LabelSet {
         secondLabel.widthAnchor.constraint(equalToConstant: 20),
         secondLabel.heightAnchor.constraint(equalToConstant: 20),
         secondLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-        secondLabel.centerXAnchor.constraint(equalTo: centerXAnchor, constant: -20),
+        secondLabel.centerXAnchor.constraint(equalTo: centerXAnchor, constant: -40),
         secondLabel.trailingAnchor.constraint(equalTo: mainLabel.leadingAnchor)
         ])
-
     }
 }
 

@@ -14,6 +14,7 @@ class PView_shelf: PViewClass, ParameterView {
     let yGainView = LabelSet_gain()
     let zQView = LabelSet_peakQ()
     let QSlider = ZSlider()
+    let stackView1 = UIStackView()
     
     lazy var freqLabel = xFreqView.mainLabel
     lazy var gainLabel = yGainView.mainLabel
@@ -36,7 +37,6 @@ class PView_shelf: PViewClass, ParameterView {
     func setInternalLayout() {
         self.translatesAutoresizingMaskIntoConstraints = false
                 
-        let stackView1 = UIStackView()
         addArrangedSubview(stackView1)
         addArrangedSubview(QSlider)
         addArrangedSubview(zQView)
@@ -85,7 +85,7 @@ class PView_shelf: PViewClass, ParameterView {
         updateZLabel()
     }
     @objc private func sliderTouchesEnded() {
-        delegate?.sliderTouchesEnded()
+        delegate?.sliderTouchesEnded(self.index)
     }
 
     

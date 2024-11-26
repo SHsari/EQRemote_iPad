@@ -21,7 +21,7 @@ let pViewDict: [FilterType : () -> ParameterView] = [
 protocol PViewDelegate: MainViewController {
     func sliderTouchesBegan(_ index: Int)
     func sliderMoved(_ value: Double)
-    func sliderTouchesEnded()
+    func sliderTouchesEnded(_ index: Int)
     func xLocktoggled(at index: Int)
     func yLocktoggled(at index: Int)
     
@@ -84,6 +84,7 @@ class PViewClass: UIStackView, ParameterTypeConfigurable {
         self.alpha = isActive ? 1.0 : 0.5
         isUserInteractionEnabled = isActive
     }
+
 }
 
 

@@ -16,19 +16,18 @@
                         <rect key="frame" x="0.0" y="0.0" width="744" height="1133"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Connect To Bluetooth Peripherals" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1QZ-1K-KK7">
-                                <rect key="frame" x="10" y="34" width="343.5" height="29"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Available Bluetooth Devices" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1QZ-1K-KK7">
+                                <rect key="frame" x="20" y="44" width="285.5" height="29"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="24"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="TSg-LG-gy1">
-                                <rect key="frame" x="0.0" y="83" width="744" height="1030"/>
+                                <rect key="frame" x="0.0" y="81" width="744" height="1032"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </tableView>
-                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5wD-Wg-IEO">
-                                <rect key="frame" x="635" y="31.5" width="89" height="34.5"/>
-                                <state key="normal" title="Button"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5wD-Wg-IEO">
+                                <rect key="frame" x="635" y="41.5" width="89" height="34.5"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Connect"/>
                                 <connections>
                                     <action selector="connectButton:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="0Gd-jU-eaN"/>
@@ -38,11 +37,11 @@
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="1QZ-1K-KK7" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="10" id="4yC-4c-YaZ"/>
+                            <constraint firstItem="1QZ-1K-KK7" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="20" id="4yC-4c-YaZ"/>
                             <constraint firstItem="TSg-LG-gy1" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="5TH-yH-rV2"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="5wD-Wg-IEO" secondAttribute="trailing" constant="20" id="Ewi-Hd-0t4"/>
-                            <constraint firstItem="TSg-LG-gy1" firstAttribute="top" secondItem="1QZ-1K-KK7" secondAttribute="bottom" constant="20" id="G69-Xa-jPx"/>
-                            <constraint firstItem="1QZ-1K-KK7" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="10" id="SSs-WK-A57"/>
+                            <constraint firstItem="TSg-LG-gy1" firstAttribute="top" secondItem="1QZ-1K-KK7" secondAttribute="bottom" constant="8" symbolic="YES" id="G69-Xa-jPx"/>
+                            <constraint firstItem="1QZ-1K-KK7" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="20" id="SSs-WK-A57"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="TSg-LG-gy1" secondAttribute="trailing" id="hZ1-6K-22A"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="TSg-LG-gy1" secondAttribute="bottom" id="vKM-2A-mJh"/>
                             <constraint firstItem="5wD-Wg-IEO" firstAttribute="centerY" secondItem="1QZ-1K-KK7" secondAttribute="centerY" id="xyG-lc-7jp"/>

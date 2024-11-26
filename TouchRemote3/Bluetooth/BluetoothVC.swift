@@ -25,26 +25,27 @@ class BluetoothVC: UIViewController, UITableViewDelegate, UITableViewDataSource 
     var serial: BluetoothSerial?
     weak var delegate: BluetoothVCDelegate?
     
-    var checkedIndexPath: IndexPath?
+    var selectedIP: IndexPath?
     
     @IBAction func connectButton(_ sender: UIButton) {
         guard let serial = serial else { return }
         if isConnected {
             serial.disconnectToPeripheral()
-        } else if let indexPath = checkedIndexPath {
-            sender.titleLabel?.text = "Connecting..."
-            serial.connectToPeripheral(to: indexPath.row)
+        } else if let ipath = selectedIP {
+            sender.isUserInteractionEnabled = false
+            sender.setTitle("Connecting...", for: .normal)
+            serial.connectToPeripheral(to: ipath.row)
         }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         peripheralsTableView.dataSource = self
         peripheralsTableView.delegate = self
-        peripheralsTableView.register(UITableViewCell.self, forCellReuseIdentifier: "peripheralCell")
-        connectButton.isHidden = true
-    
+        let nib = UINib(nibName: "BTPeripheralCell", bundle: nil)
+        peripheralsTableView.register(nib, forCellReuseIdentifier: "BTPeripheralCell")
+        connectButton.isEnabled = false
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -55,12 +56,37 @@ class BluetoothVC: UIViewController, UITableViewDelegate, UITableViewDataSource 
         }
     }
     
+    override func viewDidDisappear(_ animated: Bool) {
+        connectButton.isUserInteractionEnabled = true
+        if isConnected {
+            connectButton.setTitle("Disconnect", for: .normal)
+        } else {
+            serial = nil
+            selectedIP = nil
+            connectButton.setTitle("Connect", for: .normal)
+            connectButton.isEnabled = false
+            peripheralsTableView.reloadData()
+            self.peripheralsTableView.allowsSelection = true
+            self.titleLabel.text = "Available Bluetooth Devices"
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 44
+    }
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return "Devices"
+    }
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 20
+    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "peripheralCell", for: indexPath)
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "BTPeripheralCell", for: indexPath) as? BTPeripheralCell else { return UITableViewCell() }
         guard let serial = serial else { return cell }
         let peripheralInfo = serial.discoveredPeripherals[indexPath.row]
-        cell.textLabel?.text = "\(peripheralInfo.peripheral.name ?? "Unknown") - RSSI: \(peripheralInfo.rssi)"
-        cell.detailTextLabel?.text = "연결안됨"
+        cell.PeripheralName.text = "\(peripheralInfo.peripheral.name ?? "Unknown")"
+        cell.setStrength(rssi: peripheralInfo.rssi)
         return cell
     }
     
@@ -70,46 +96,49 @@ class BluetoothVC: UIViewController, UITableViewDelegate, UITableViewDataSource 
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard !isConnected else { return }
-        if checkedIndexPath == indexPath {
-            connectButton.isEnabled = false
+        if selectedIP == indexPath {
+            selectedIP = nil
+            self.connectButton.isEnabled = false
+            tableView.deselectRow(at: indexPath, animated: true)
         } else {
-            if let cell = tableView.cellForRow(at: indexPath) {
-                cell.accessoryType = .checkmark
-                connectButton.isEnabled = true
-            }
+            selectedIP = indexPath
+            self.connectButton.isEnabled = true
         }
     }
     
-    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        guard !isConnected else { return }
-        if let cell = tableView.cellForRow(at: indexPath) {
-            cell.accessoryType = .none
-            tableView.deselectRow(at: indexPath, animated: true)
-        }
-    }
 }
 
 
 extension BluetoothVC: BluetoothSerialDelegate {
-
-    func didDiscoverNewPeripheral() {
-        DispatchQueue.main.async {
-            self.peripheralsTableView.reloadData()
+    
+    func didDiscoverNewPeripheral(_ lastIndex: Int) {
+        let ip = IndexPath(row: lastIndex, section: 0)
+        peripheralsTableView.insertRows(at: [ip], with: .automatic)
+    }
+    func updateRssi(rssi: NSNumber, at index: Int) {
+        let ip = IndexPath(row: index, section: 0)
+        if let cell = peripheralsTableView.cellForRow(at: ip) as? BTPeripheralCell {
+            cell.setStrength(rssi: rssi)
         }
+    }
+    
+    func didRemovePeripheral(at index: Int) {
+        let ip = IndexPath(row: index, section: 0)
+        peripheralsTableView.deleteRows(at: [ip], with: .fade)
+        guard let selected = selectedIP else { return }
+        if ip == selected { selectedIP = nil; connectButton.isEnabled = false }
+        else if ip < selected { selectedIP = IndexPath(row: selected.row - 1, section: 0) }
     }
     
     func bluetoothConnected() {
         guard let serial = serial else { return }
-        delegate?.bluetoothConnected(serial: serial)
-        if let ip = checkedIndexPath, let cell = peripheralsTableView.cellForRow(at: ip) {
-            var content = cell.defaultContentConfiguration()
-            content.secondaryText = "Connected"
-            cell.contentConfiguration = content
-        }
         self.isConnected = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.connectButton.titleLabel?.text = "Disconnect"
+        peripheralsTableView.allowsSelection = false
+        titleLabel.text = "Device Connected"
+        delegate?.bluetoothConnected(serial: serial)
+        if let ip = selectedIP,
+           let cell = peripheralsTableView.cellForRow(at: ip) as? BTPeripheralCell {
+            cell.setConnected(true)
         }
         dismiss(animated: true, completion: nil)
     }
@@ -121,28 +150,29 @@ extension BluetoothVC: BluetoothSerialDelegate {
     
     func btDisconnectionHandler(error: (any Error)?) {
         isConnected = false
-        connectButton.titleLabel?.text = "Connect"/*
-        if let indexPath = checkedIndexPath {
-            if let cell = peripheralsTableView.cellForRow(at: indexPath) {
-                cell.accessoryType = .none
-                var content = cell.defaultContentConfiguration()
-                content.secondaryText = ""
-                cell.contentConfiguration = content
-                checkedIndexPath = nil
-            }
-        }*/
-        serial = nil
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.peripheralsTableView.reloadData()
+        if let ip = selectedIP {
+            let cell = peripheralsTableView.cellForRow(at: ip) as? BTPeripheralCell
+            cell?.setConnected(false)
         }
+        
+        
+        serial = nil
+        selectedIP = nil
+        connectButton.setTitle("Connect", for: .normal)
+        connectButton.isEnabled = false
+        peripheralsTableView.reloadData()
+        self.peripheralsTableView.allowsSelection = true
+        self.titleLabel.text = "Available Bluetooth Devices"
+        
 
         var errMessage = ""
         if let error = error { errMessage = error.localizedDescription }
         let alert = UIAlertController(title: "Bluetooth Disconnected", message: errMessage, preferredStyle: .alert)
         let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
         alert.addAction(okAction)
-        delegate?.bluetoothDisconnected(alert: alert)
-        dismiss(animated: true, completion: nil)
+        dismiss(animated: true) { [weak self] in
+            self?.delegate?.bluetoothDisconnected(alert: alert)
+        }
     }
 }
 

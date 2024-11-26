@@ -48,6 +48,8 @@
 		66AE11DD2C8F61AA00224B11 /* TaskManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE11DC2C8F61AA00224B11 /* TaskManager.swift */; };
 		66AE11E32C91AB9700224B11 /* Preset_Band.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE11E22C91AB9700224B11 /* Preset_Band.swift */; };
 		66AE11E62C91C4EF00224B11 /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE11E52C91C4EF00224B11 /* Response.swift */; };
+		66B560262CC2806F00F6F62A /* BTPeripheralCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 66B560252CC2806F00F6F62A /* BTPeripheralCell.xib */; };
+		66B560282CC2850900F6F62A /* BTPeripheralCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66B560272CC2850900F6F62A /* BTPeripheralCell.swift */; };
 		66C2CA372CA6D3E900E319B8 /* PView_noZ.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66C2CA362CA6D3E900E319B8 /* PView_noZ.swift */; };
 		66C2CA392CA6FB4C00E319B8 /* PView_peak.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66C2CA382CA6FB4C00E319B8 /* PView_peak.swift */; };
 		66C2CA3D2CA804BF00E319B8 /* ZSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66C2CA3C2CA804BF00E319B8 /* ZSlider.swift */; };
@@ -96,7 +98,7 @@
 		6639284C2C6E8AFD009D38BD /* PView_withSlider_old.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PView_withSlider_old.swift; sourceTree = "<group>"; };
 		6639284E2C6F974E009D38BD /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
 		663928502C6F97AD009D38BD /* FilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterView.swift; sourceTree = "<group>"; };
-		663928582C6FAAA9009D38BD /* TouchMeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TouchMeView.swift; path = ../../TouchMeView.swift; sourceTree = "<group>"; };
+		663928582C6FAAA9009D38BD /* TouchMeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchMeView.swift; sourceTree = "<group>"; };
 		6639285A2C6FB940009D38BD /* BluetoothVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothVC.swift; sourceTree = "<group>"; };
 		6639285C2C6FBD5D009D38BD /* BluetoothVC.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = BluetoothVC.storyboard; sourceTree = "<group>"; };
 		6639285E2C6FBD6C009D38BD /* BluetoothSerial.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BluetoothSerial.swift; sourceTree = "<group>"; };
@@ -115,6 +117,8 @@
 		66AE11DC2C8F61AA00224B11 /* TaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskManager.swift; sourceTree = "<group>"; };
 		66AE11E22C91AB9700224B11 /* Preset_Band.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preset_Band.swift; sourceTree = "<group>"; };
 		66AE11E52C91C4EF00224B11 /* Response.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
+		66B560252CC2806F00F6F62A /* BTPeripheralCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = BTPeripheralCell.xib; sourceTree = "<group>"; };
+		66B560272CC2850900F6F62A /* BTPeripheralCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BTPeripheralCell.swift; sourceTree = "<group>"; };
 		66C2CA362CA6D3E900E319B8 /* PView_noZ.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PView_noZ.swift; sourceTree = "<group>"; };
 		66C2CA382CA6FB4C00E319B8 /* PView_peak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PView_peak.swift; sourceTree = "<group>"; };
 		66C2CA3C2CA804BF00E319B8 /* ZSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZSlider.swift; sourceTree = "<group>"; };
@@ -233,6 +237,8 @@
 			isa = PBXGroup;
 			children = (
 				6639285C2C6FBD5D009D38BD /* BluetoothVC.storyboard */,
+				66B560252CC2806F00F6F62A /* BTPeripheralCell.xib */,
+				66B560272CC2850900F6F62A /* BTPeripheralCell.swift */,
 				6639285A2C6FB940009D38BD /* BluetoothVC.swift */,
 				6639285E2C6FBD6C009D38BD /* BluetoothSerial.swift */,
 				66D2BEF32C73A16A00F7B975 /* BluetoothDataSender.swift */,
@@ -352,6 +358,7 @@
 				663928472C6E01B8009D38BD /* PView_noSlider.xib in Resources */,
 				668F82BF2CB41C13002C7868 /* TypeInVC.xib in Resources */,
 				663928482C6E01B8009D38BD /* PView_withSlider.xib in Resources */,
+				66B560262CC2806F00F6F62A /* BTPeripheralCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -381,6 +388,7 @@
 				66AE11DD2C8F61AA00224B11 /* TaskManager.swift in Sources */,
 				663928512C6F97AD009D38BD /* FilterView.swift in Sources */,
 				663927D72C6DE0E6009D38BD /* AppDelegate.swift in Sources */,
+				66B560282CC2850900F6F62A /* BTPeripheralCell.swift in Sources */,
 				66C2CA392CA6FB4C00E319B8 /* PView_peak.swift in Sources */,
 				668A9FAC2CAAE4F20016FD42 /* ParameterType.swift in Sources */,
 				66AE11E62C91C4EF00224B11 /* Response.swift in Sources */,
@@ -472,7 +480,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -529,7 +537,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -546,16 +554,16 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4SR72F88BS;
+				DEVELOPMENT_TEAM = 746UF2ZA24;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TouchRemote3/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = EQSimulator;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
-				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = ABC;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Connect To Teensy 4.0, Send EQ Setting.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -579,16 +587,16 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4SR72F88BS;
+				DEVELOPMENT_TEAM = 746UF2ZA24;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TouchRemote3/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = EQSimulator;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
-				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = ABC;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Connect To Teensy 4.0, Send EQ Setting.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

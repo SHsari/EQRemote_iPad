@@ -21,7 +21,6 @@ class ParameterLabel: UILabel {
         super.init(frame: frame)
         self.translatesAutoresizingMaskIntoConstraints = false
         self.isUserInteractionEnabled = false
-        //setGestures()
     }
     
     required init?(coder: NSCoder) {

@@ -24,6 +24,7 @@ class OneTask {
 
 protocol TaskListDelegate: MainViewController {
     func willChangeByTask(at index: Int)
+    func setOnOff(value: Bool, at index: Int)
     func setZ(value: Double, at index: Int)
     func setDot(value: XYPosition, at index: Int)
     func setXYZ(value: XYZPosition, at index: Int)
@@ -32,6 +33,8 @@ protocol TaskListDelegate: MainViewController {
     func setRedoEnable(_ isEnable: Bool)
     func setUndoEnable(_ isEnable: Bool)
 }
+extension Bool: Recordable {}
+
 
 class TaskList {
     
@@ -54,6 +57,11 @@ class TaskList {
         self.bind = bind
         self.taskList = []
         self.listCurrentIndex = -1
+    }
+    
+    func OnOffChanged(at index: Int, to value: Bool) {
+        activeIndex = index
+        listAppend(before: !value, after: value)
     }
     
     func sliderWillMove(at index: Int) {
@@ -104,8 +112,10 @@ class TaskList {
         listAppend(before: pendingRecord, after: recordBand)
     }
     
-    func presetWillset() {
-        activeIndex = nil
+    func presetWillset(at section: Int?) {
+        if let section = section {
+            activeIndex = section*4
+        }
         pendingRecord = Preset(bands: storage).copy()
     }
     func presetDidset() {
@@ -152,6 +162,8 @@ class TaskList {
     private func function(for record: Recordable, at index: Int?) {
         if let index = index { delegate?.willChangeByTask(at: index) }
         switch record {
+        case let onOffRecord as Bool:
+            delegate?.setOnOff(value: onOffRecord, at: index!)
         case let zRecord as Zonly:
             delegate?.setZ(value: zRecord.z_(), at: index!)
         case let dotRecord as XYPosition:
@@ -161,7 +173,7 @@ class TaskList {
         case let bandRecord as OneBand:
             delegate?.setBand(value: bandRecord, at: index!)
         case let presetRecord as Preset:
-            delegate?.setPreset(preset: presetRecord.bands, at: nil)
+            delegate?.setPreset(preset: presetRecord.bands, at: index)
         default:
             return
         }

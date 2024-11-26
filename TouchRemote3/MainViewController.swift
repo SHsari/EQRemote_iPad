@@ -70,6 +70,7 @@ class MainViewController: UIViewController {
     var pendingTask: Recordable = factoryPreset_()
     var taskIndex: Int = -1
     var alertSection: Int = -1
+    var movingIndex: Int?
     
     required init?(coder: NSCoder) {
         
@@ -115,6 +116,27 @@ class MainViewController: UIViewController {
         4: .highShelf
     ]
     
+    @IBOutlet weak var syncHWBtn: UIButton!
+    @IBAction func syncBtnPressed(_ sender: UIButton) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            self.bthDataSender.resetAllData(preset: self.storages)
+        }
+    }
+    
+    @IBOutlet weak var bluetoothIndicator: UIView!
+    @IBOutlet weak var bthCircleWidth: NSLayoutConstraint!
+    lazy var bthCircle = CAShapeLayer()
+    
+    func setBthCircleActive(_ isActive: Bool) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            let width = isActive ? 5 : 0
+            self?.bthCircleWidth.constant = CGFloat(width)
+            UIView.animate(withDuration: 0.3, animations: { self?.view.layoutIfNeeded() })
+            self?.bthCircle.isHidden = !isActive
+            self?.syncHWBtn.isHidden = !isActive
+        }
+    }
+    
     @IBOutlet weak var undoBTN: UIButton!
     @IBOutlet weak var redoBTN: UIButton!
     @IBAction func undo(_ sender: UIButton) { taskManager.undo() }
@@ -146,12 +168,18 @@ class MainViewController: UIViewController {
     @IBAction func filterOnOffSwitch(_ sender: UISwitch) {
         let index = sender.tag
         let isOn = sender.isOn
+        filterOnOff(at: index, isOn: isOn)
+        taskManager.OnOffChanged(at: index, to: isOn)
+    }
+    
+    func filterOnOff(at index: Int, isOn: Bool){
         storages[index].isOn = isOn
         parameterViews[index].setViewActive(isOn)
         touchMeView.setDotActive(index, isActive: isOn)
         typeMenu[index]?.isEnabled = isOn
         filterManager.handleOnOff(at: index, isOn: isOn)
         filterView.masterGraphUpdate()
+        bthDataSender.sendOnOffData(at: index, isOn: isOn)
     }
 }
 
@@ -161,7 +189,20 @@ extension MainViewController { //initializers
         if let btVC = storyboard.instantiateViewController(withIdentifier: "BluetoothVC") as? BluetoothVC {
             btVC.modalPresentationStyle = .formSheet
             self.bluetoothVC = btVC
+            btVC.delegate = self
         }
+        
+        let circle = CAShapeLayer()
+        circle.path = UIBezierPath(ovalIn: CGRect(x: 0, y: 11, width: 7, height: 7)).cgPath
+        circle.fillColor = UIColor.systemCyan.cgColor
+        circle.lineWidth = 0
+        circle.isHidden = true
+        bluetoothIndicator.layer.addSublayer(circle)
+        bthCircle = circle
+    }
+    
+    private func initTaskBtn() {
+       
     }
     
     private func initSaveBtn() {
@@ -229,16 +270,16 @@ extension MainViewController { //initializers
     }
     
     private func initGridView() {
-        gridView = GridView(frame: view.frame, standard: filterView.bounds)
+        gridView = GridView(frame: filterView.bounds)
         filterView.addSubview(gridView)
         filterView.sendSubviewToBack(gridView)
     }
 }
 
-
 extension MainViewController: PViewDelegate {
    
     func sliderTouchesBegan(_ index: Int) {
+        self.movingIndex = index
         taskManager.sliderWillMove(at: index)
         filterManager.willBeChange(in: index)
         bthDataSender.willSendData(at: index)
@@ -247,41 +288,50 @@ extension MainViewController: PViewDelegate {
         bthDataSender.sendZdata(z: value)
         filterManager.sliderMoved(value)
     }
-    func sliderTouchesEnded() {
+    func sliderTouchesEnded(_ index: Int) {
+        guard index == movingIndex else { movingIndex = nil; return }
         taskManager.sliderDidMove()
+        bthDataSender.sendLastZData()
+        movingIndex = nil
     }
     
     func xLocktoggled(at index: Int) { touchMeView.xLockToggled(at: index) }
     func yLocktoggled(at index: Int) { touchMeView.yLockToggled(at: index) }
     
     func didDoubleTap_freq(at index: Int) {
+        taskManager.dotWillMove(at: index)
         let x = factoryPreset_().bands[index].position.x
         filterManager.set(bindX: x, at: index)
-        touchMeView.doubleTapped(at: index, with: XYPosition(x: x, y: bind[index].y))
+        touchMeView.setPositionDirect(at: index, bind: bind[index].getXY())
         taskManager.dotDidMove()
+        bthDataSender.sendLastXYData()
     }
     
     func didDoubleTap_gain(at index: Int) {
+        taskManager.dotWillMove(at: index)
         let y = factoryPreset_().bands[index].position.y
         filterManager.set(bindY: y, at: index)
-        touchMeView.doubleTapped(at: index, with: bind[index].getXY())
+        touchMeView.setPositionDirect(at: index, bind: bind[index].getXY())
         taskManager.dotDidMove()
+        bthDataSender.sendLastXYData()
     }
     
     func didDoubleTap_Q(at index: Int) {
+        taskManager.sliderWillMove(at: index)
         let z = factoryPreset_().bands[index].position.z
         filterManager.set(bindZ: z, at: index)
         parameterViews[index].updateSlider()
         taskManager.sliderDidMove()
+        bthDataSender.sendLastZData()
     }
     
     func copyRequest(at index: Int, pType: ParameterType) {
         switch pType {
-        case .x: Clipboard.data = bind[index].x
-        case .y: Clipboard.data = bind[index].y
+        case .x: Clipboard.data = norm[index].x
+        case .y: Clipboard.data = norm[index].y
         case .z: Clipboard.data = norm[index].z
-        case .band: Clipboard.data = bind[index].copy()
-        case .dot: Clipboard.data = bind[index].getXY()
+        case .band: Clipboard.data = norm[index].copy()
+        case .dot: Clipboard.data = norm[index].getXY()
         }
     }
     
@@ -291,14 +341,14 @@ extension MainViewController: PViewDelegate {
         switch pType {
         case .x:
             guard let x = Clipboard.data as? Double else {return}
-            filterManager.set(bindX: x, at: index)
+            filterManager.set(normX: x, at: index)
             parameterViews[index].updateXLabel()
-            touchMeView.setXwith(value: x, at: index)
+            touchMeView.setXwith(nvalue: x, at: index)
         case .y:
             guard let y = Clipboard.data as? Double else {return}
-            filterManager.set(bindY: y, at: index)
+            filterManager.set(normY: y, at: index)
             parameterViews[index].updateYLabel()
-            touchMeView.setYwith(value: y, at: index)
+            touchMeView.setYwith(nvalue: y, at: index)
         case .z:
             guard let z = Clipboard.data as? Double else {return}
             filterManager.set(normZ: z, at: index)
@@ -306,18 +356,19 @@ extension MainViewController: PViewDelegate {
             parameterViews[index].updateSlider()
         case .band:
             guard let band = Clipboard.data as? XYZPosition else {return}
-            filterManager.set(xyz: band, at: index)
+            filterManager.setNorm(xyz: band, at: index)
             parameterViews[index].updateWhole()
-            touchMeView.setPositionDirect(at: index, with: band.getXY())
+            touchMeView.setPositionDirect(at: index, norm: band.getXY())
         case .dot: //Touch Me View에서 아직 구현안됨.
             guard let position = Clipboard.data as? XYPosition else {return}
             filterManager.willBeChange(in: index)
             filterManager.touchesMoved(position)
             parameterViews[index].updateXLabel()
             parameterViews[index].updateYLabel()
-            touchMeView.setPositionDirect(at: index, with: position)
+            touchMeView.setPositionDirect(at: index, norm: position)
         }
         taskManager.xyzDidChange()
+        bthDataSender.sendBandData(at: index, band: storages[index])
     }
     
     func typeInRequest(at index: Int, type: ParameterType) {
@@ -338,10 +389,11 @@ extension MainViewController: TypeInVCDelegate {
         if let x = values[0] { xyz.x = x }
         if let y = values[1] { xyz.y = y }
         if let z = values[2] { xyz.z = z }
-        filterManager.set(xyz: xyz, at: index)
-        touchMeView.setPositionDirect(at: index, with: xyz.getXY())
+        filterManager.setBind(xyz: xyz, at: index)
+        touchMeView.setPositionDirect(at: index, bind: xyz.getXY())
         parameterViews[index].updateWhole()
         taskManager.xyzDidChange()
+        bthDataSender.sendBandData(at: index, band: storages[index])
     }
 }
 
@@ -349,27 +401,26 @@ extension MainViewController: TypeInVCDelegate {
 extension MainViewController: TouchMeViewDelegate {
     
     func touchesBegan(_ index: Int) {
+        self.movingIndex = index
         activePView = parameterViews[index]
         filterManager.willBeChange(in: index)
         taskManager.dotWillMove(at: index)
+        bthDataSender.willSendData(at: index)
     }
     
     func touchesMoved(_ position: XYPosition) {
         filterManager.touchesMoved(position)
         activePView.updateXLabel()
         activePView.updateYLabel()
+        bthDataSender.sendXYdata(xy: position)
     }
     
-    func touchesEnded() {
+    func touchesEnded(_ index: Int) {
+        guard index == movingIndex else { movingIndex = nil; return }
         taskManager.dotDidMove()
+        bthDataSender.sendLastXYData()
+        movingIndex = nil
     }
-    
-    func didDoubleTap(at index: Int)  {
-        activePView = parameterViews[index]
-        filterManager.willBeChange(in: index)
-        taskManager.dotWillMove(at: index)
-    }
-    
 }
 
 extension MainViewController {
@@ -382,6 +433,7 @@ extension MainViewController {
         changePview(at: index, type: type)
         touchMeView.resetDotLock(at: index)
         taskManager.bandDidChange()
+        bthDataSender.sendBandData(at: index, band: storages[index])
     }
     
     func changePview(at index: Int, type: FilterType) {
@@ -442,8 +494,8 @@ extension MainViewController {
 
 extension MainViewController: TaskListDelegate {
     
-    func setRedoEnable(_ isEnable: Bool) { redoBTN.isEnabled = isEnable }
-    func setUndoEnable(_ isEnable: Bool) { undoBTN.isEnabled = isEnable }
+    func setRedoEnable(_ isEnable: Bool) { UIView.performWithoutAnimation { redoBTN.isEnabled = isEnable } }
+    func setUndoEnable(_ isEnable: Bool) { UIView.performWithoutAnimation { undoBTN.isEnabled = isEnable } }
     
     func willChangeByTask(at index: Int) {
         let taskSection = index/4
@@ -451,11 +503,19 @@ extension MainViewController: TaskListDelegate {
             sectionController.selectedSegmentIndex = taskSection
             sectionChange(taskSection)
         }
+        bthDataSender.willSendData(at: index)
+    }
+    
+    func setOnOff(value: Bool, at index: Int) {
+        let tmpSwitch = bandSwitches[index]!
+        tmpSwitch.setOn(value, animated: true)
+        filterOnOff(at: index, isOn: value)
     }
     
     func setZ(value: Double, at index: Int) {
         filterManager.set(bindZ: value, at: index)
         parameterViews[index].updateSlider()
+        bthDataSender.sendLastZData()
     }
     
     func setDot(value: XYPosition, at index: Int) {
@@ -463,15 +523,18 @@ extension MainViewController: TaskListDelegate {
         filterManager.touchesMoved(value)
         parameterViews[index].updateXLabel()
         parameterViews[index].updateYLabel()
-        touchMeView.setPositionDirect(at: index, with: value)
+        touchMeView.setPositionDirect(at: index, bind: value)
+        bthDataSender.sendLastXYData()
     }
     
     func setXYZ(value: XYZPosition, at index: Int) {
         let xy = value.getXY()
         filterManager.willBeChange(in: index)
-        filterManager.set(xyz: value, at: index)
+        filterManager.setBind(xyz: value, at: index)
         parameterViews[index].updateWhole()
-        touchMeView.setPositionDirect(at: index, with: xy)
+        touchMeView.setPositionDirect(at: index, bind: xy)
+        bthDataSender.sendLastZData()
+        bthDataSender.sendLastXYData()
     }
     
     func setBand(value: OneBand, at index: Int) {
@@ -482,8 +545,9 @@ extension MainViewController: TaskListDelegate {
         parameterViews[index].updateWhole()
         setFilterMenuSelection(index, type)
         touchMeView.resetDotLock(at: index)
-        touchMeView.setPositionDirect(at: index, with: value.getXY())
+        touchMeView.setPositionDirect(at: index, bind: value.getXY())
         touchMeView.setSectionActive(sectionController.selectedSegmentIndex)
+        bthDataSender.sendBandData(at: index, band: value)
     }
     
     func setPreset(preset: [OneBand], at section: Int?) {
@@ -512,7 +576,11 @@ extension MainViewController: FileExplorerVCDelegate {
     }
     
     func presetLoaded(_ preset: [OneBand], for section: Int?) {
-        taskManager.presetWillset()
+        taskManager.presetWillset(at: section)
+        if let section = section {
+            sectionController.selectedSegmentIndex = section
+            sectionChange(section)
+        }
         setPreset(preset: preset, at: section)
         taskManager.presetDidset()
     }
@@ -521,14 +589,22 @@ extension MainViewController: FileExplorerVCDelegate {
 
 extension MainViewController: BluetoothVCDelegate {
     func bluetoothDisconnected(alert: UIAlertController) {
-        self.present(alert, animated: true)
+        self.present(alert, animated: true) { [weak self] in
+            self?.setBthCircleActive(false)
+        }
         self.bthDataSender.serial = nil
+        
     }
     
     func bluetoothConnected(serial: BluetoothSerial) {
+        print("bthConnected from MVC")
         self.bthDataSender.serial = serial
-        self.bthDataSender.resetAllData(preset: storages)
+        bthDataSender.sendBandData(at: 0, band: storages[0])
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            self.bthDataSender.resetAllData(preset: self.storages)
+        }
+        self.setBthCircleActive(true)
     }
     
-    func btWriteFailed() {    }
+    func btWriteFailed() {  }
 }
