@@ -27,6 +27,12 @@
                                 <rect key="frame" x="0.0" y="24" width="1180" height="576"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
+                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text=" Bypass " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fXl-mN-9mM" userLabel="Bypass">
+                                <rect key="frame" x="562" y="30" width="56.5" height="18"/>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="15"/>
+                                <color key="textColor" systemColor="systemRedColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="S0M-Dp-pR2">
                                 <rect key="frame" x="20" y="24" width="307" height="30"/>
                                 <subviews>
@@ -108,6 +114,12 @@
                                             <action selector="redo:" destination="BYZ-38-t0r" eventType="touchUpInside" id="lWd-q6-ulL"/>
                                         </connections>
                                     </button>
+                                    <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="   HW Sync Request" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ah4-Vm-Dnn">
+                                        <rect key="frame" x="307" y="6" width="0.0" height="18"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                        <color key="textColor" systemColor="secondaryLabelColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                 </subviews>
                             </stackView>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="DlE-c0-ES0">
@@ -518,6 +530,7 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="e4r-nX-qgh" secondAttribute="trailing" id="Bxl-y2-FQG"/>
                             <constraint firstItem="DlE-c0-ES0" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="15" id="EWA-At-AlN"/>
                             <constraint firstItem="56w-WB-wA6" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="FFf-qE-RZj"/>
+                            <constraint firstItem="fXl-mN-9mM" firstAttribute="centerY" secondItem="Ah4-Vm-Dnn" secondAttribute="centerY" id="MBb-p0-ENA"/>
                             <constraint firstItem="S0M-Dp-pR2" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="XXb-OC-pK8"/>
                             <constraint firstItem="0rz-v2-Mnt" firstAttribute="leading" secondItem="56w-WB-wA6" secondAttribute="leading" id="Ykx-3f-iNU"/>
                             <constraint firstItem="rx5-6k-gVB" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="cng-tc-BY5"/>
@@ -527,6 +540,7 @@
                             <constraint firstItem="e4r-nX-qgh" firstAttribute="bottom" secondItem="rx5-6k-gVB" secondAttribute="bottom" id="eog-Kp-ER8"/>
                             <constraint firstItem="56w-WB-wA6" firstAttribute="top" secondItem="e4r-nX-qgh" secondAttribute="bottom" id="i70-kS-UHD"/>
                             <constraint firstItem="e4r-nX-qgh" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="mug-AV-eGt"/>
+                            <constraint firstItem="fXl-mN-9mM" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="ndq-ad-Uud"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="56w-WB-wA6" secondAttribute="trailing" constant="10" id="p2N-te-fqA"/>
                             <constraint firstItem="56w-WB-wA6" firstAttribute="trailing" secondItem="0rz-v2-Mnt" secondAttribute="trailing" id="qd8-oV-2so"/>
                         </constraints>
@@ -534,6 +548,7 @@
                     <connections>
                         <outlet property="bluetoothIndicator" destination="b5z-6A-Dsp" id="oPL-68-We4"/>
                         <outlet property="bthCircleWidth" destination="xR1-uI-6jk" id="ylH-fa-lwP"/>
+                        <outlet property="bypassLabel" destination="fXl-mN-9mM" id="Ld6-84-sES"/>
                         <outlet property="filterView" destination="rx5-6k-gVB" id="pTY-5y-A1u"/>
                         <outlet property="onOffSwitch1" destination="ycC-eJ-gM1" id="cYe-LB-ls5"/>
                         <outlet property="onOffSwitch2" destination="NoX-5P-l2t" id="MLi-5P-kat"/>
@@ -554,6 +569,7 @@
                         <outlet property="pViewSection1" destination="56w-WB-wA6" id="U04-n0-Al6"/>
                         <outlet property="pViewSection2" destination="0rz-v2-Mnt" id="Mqa-P8-fkU"/>
                         <outlet property="redoBTN" destination="gnF-Ri-QIW" id="yGr-tW-WBF"/>
+                        <outlet property="requestHWLabel" destination="Ah4-Vm-Dnn" id="Vof-8f-wJQ"/>
                         <outlet property="saveBtn" destination="DCr-kH-KhG" id="RUZ-hs-N3p"/>
                         <outlet property="sectionController" destination="DlE-c0-ES0" id="J8H-mI-Ggc"/>
                         <outlet property="syncHWBtn" destination="0gG-vR-ebD" id="6xb-4E-GBp"/>
@@ -577,8 +593,14 @@
     <resources>
         <image name="arrow.uturn.backward" catalog="system" width="128" height="113"/>
         <image name="arrow.uturn.forward" catalog="system" width="128" height="113"/>
+        <systemColor name="secondaryLabelColor">
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemRedColor">
+            <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

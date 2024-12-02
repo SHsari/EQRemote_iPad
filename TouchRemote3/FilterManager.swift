@@ -143,9 +143,7 @@ class FilterManager {
         filter.setBindZ(position.z)
         filter.updateResponse()
         didChange()
-    }
-    
-    
+    }    
     
     func filterTypeChanged(at index: Int, type: FilterType) {
         willBeChange(in: index)
@@ -166,11 +164,12 @@ class FilterManager {
     }
 
     
-    private func setRootResponse() {
+    func setRootResponse() {
         let tmp = Response()
         for response in self.allResponse {
             tmp.dB = tmp.dB + response.dB
         }
         rootResponse.dB = tmp.dB
+        filterView.masterGraphUpdate()
     }
 }

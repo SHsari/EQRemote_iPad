@@ -120,18 +120,21 @@ class BluetoothDataSender {
     
     func sendBandData(at index: Int, band: OneBand) {
         guard let serial = serial else { return }
-        var data = Data()
-        let firstByte = getFirstByte(bandData, index)
-        data.append(firstByte)
-        let typeByte = typeNumberDict[band.type]!
-        data.append(typeByte)
-        let position = band.position
-        data.append(doubleToFloatData(position.x))
-        data.append(doubleToFloatData(position.y))
-        data.append(doubleToFloatData(position.z))
-        
-        serial.sendDataToHW_should(data, at: index)
-        //print("dataLength: \(data.count) byte ")
+        if band.isOn {
+            var data = Data()
+            let firstByte = getFirstByte(bandData, index)
+            data.append(firstByte)
+            let typeByte = typeNumberDict[band.type]!
+            data.append(typeByte)
+            let position = band.position
+            data.append(doubleToFloatData(position.x))
+            data.append(doubleToFloatData(position.y))
+            data.append(doubleToFloatData(position.z))
+            
+            serial.sendDataToHW_should(data, at: index)
+        } else {
+            sendOnOffData(at: index, isOn: false)
+        }
     }
     
     func resetAllData(preset: [OneBand]) {

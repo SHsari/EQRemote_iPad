@@ -116,6 +116,7 @@ class MainViewController: UIViewController {
         4: .highShelf
     ]
     
+    @IBOutlet weak var requestHWLabel: UILabel!
     @IBOutlet weak var syncHWBtn: UIButton!
     @IBAction func syncBtnPressed(_ sender: UIButton) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
@@ -123,6 +124,7 @@ class MainViewController: UIViewController {
         }
     }
     
+    @IBOutlet weak var bypassLabel: UILabel!
     @IBOutlet weak var bluetoothIndicator: UIView!
     @IBOutlet weak var bthCircleWidth: NSLayoutConstraint!
     lazy var bthCircle = CAShapeLayer()
@@ -173,12 +175,14 @@ class MainViewController: UIViewController {
     }
     
     func filterOnOff(at index: Int, isOn: Bool){
+        if storages[index].isOn != isOn {
+            filterManager.handleOnOff(at: index, isOn: isOn)
+            filterView.masterGraphUpdate()
+        }
         storages[index].isOn = isOn
         parameterViews[index].setViewActive(isOn)
         touchMeView.setDotActive(index, isActive: isOn)
         typeMenu[index]?.isEnabled = isOn
-        filterManager.handleOnOff(at: index, isOn: isOn)
-        filterView.masterGraphUpdate()
         bthDataSender.sendOnOffData(at: index, isOn: isOn)
     }
 }
@@ -548,15 +552,16 @@ extension MainViewController: TaskListDelegate {
         touchMeView.setPositionDirect(at: index, bind: value.getXY())
         touchMeView.setSectionActive(sectionController.selectedSegmentIndex)
         bthDataSender.sendBandData(at: index, band: value)
+        setOnOff(value: value.isOn, at: index)
     }
     
     func setPreset(preset: [OneBand], at section: Int?) {
         var offset: Int = 0
-        
         if let section = section, preset.count == 4 {
             offset = section * 4
         }
         for (i, band) in preset.enumerated() {
+            setOnOff(value: true, at: i)
             setBand(value: band, at: i+offset)
         }
     }
@@ -588,23 +593,52 @@ extension MainViewController: FileExplorerVCDelegate {
 
 
 extension MainViewController: BluetoothVCDelegate {
+    func requestFromHW(command: String) {
+        switch command {
+        case "HW Sync Request":
+            indicateHWRequest(command)
+            bthDataSender.resetAllData(preset: storages)
+        case "BypassOn":
+            showHWBypassLabel(true)
+        case "BypassOff":
+            showHWBypassLabel(false)
+            bthDataSender.resetAllData(preset: storages)
+        default :
+            indicateHWRequest("Unknown Request")
+        }
+
+    }
+    private func showHWBypassLabel(_ isOn: Bool) {
+        bypassLabel.isHidden = !isOn
+    }
+    private func indicateHWRequest(_ str: String){
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.requestHWLabel.alpha = 0
+            self.requestHWLabel.text = str
+            self.requestHWLabel.isHidden = false
+            UIView.animate(withDuration: 0.3, animations: { self.requestHWLabel.alpha = 1 }) { _ in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    UIView.animate(withDuration: 0.3, animations: { self.requestHWLabel.alpha = 0 }) { _ in
+                        self.requestHWLabel.isHidden = true
+                    }
+                }
+            }
+        }
+    }
     func bluetoothDisconnected(alert: UIAlertController) {
         self.present(alert, animated: true) { [weak self] in
             self?.setBthCircleActive(false)
         }
         self.bthDataSender.serial = nil
-        
+        showHWBypassLabel(false)
     }
     
     func bluetoothConnected(serial: BluetoothSerial) {
         print("bthConnected from MVC")
         self.bthDataSender.serial = serial
-        bthDataSender.sendBandData(at: 0, band: storages[0])
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            self.bthDataSender.resetAllData(preset: self.storages)
-        }
         self.setBthCircleActive(true)
+        bthDataSender.resetAllData(preset: storages)
     }
-    
     func btWriteFailed() {  }
 }

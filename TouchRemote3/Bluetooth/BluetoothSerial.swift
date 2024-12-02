@@ -7,13 +7,14 @@
 
 import CoreBluetooth
 
-let fb301CharisticUUID = CBUUID(string: "FFF1")
+let fb301WriteCharUUID = CBUUID(string: "FFF1")
+let fb301ReadCharUUID = CBUUID(string: "FFF2")
 let fb301ServiceUUID = CBUUID(string: "FFF0")
 let hm10ServiceUUID = CBUUID(string: "FFE0")
 let hm10CharacteristicUUID = CBUUID(string: "FFE1")
 
 let serviceUUIDArray = [fb301ServiceUUID, hm10ServiceUUID]
-let characteristicUUIDArray = [fb301CharisticUUID, hm10CharacteristicUUID]
+let characteristicUUIDArray = [fb301WriteCharUUID, fb301ReadCharUUID, hm10CharacteristicUUID]
 
 protocol BluetoothSerialDelegate: BluetoothVC {
     func didDiscoverNewPeripheral(_ lastIndex: Int)
@@ -22,6 +23,7 @@ protocol BluetoothSerialDelegate: BluetoothVC {
     func btDisconnectionHandler(error: (any Error)?)
     func updateRssi(rssi: NSNumber, at row: Int)
     func didRemovePeripheral(at index: Int)
+    func requestFromHW(command: String)
 }
 
 struct PeripheralInfo {
@@ -98,6 +100,10 @@ class BluetoothSerial: NSObject {
     private func stopTimer() {
         self.timer?.invalidate(); self.timer = nil
     }
+    
+    func subscribeToSerialRead(characteristic: CBCharacteristic, peripheral: CBPeripheral){
+        peripheral.setNotifyValue(true, for: characteristic)
+    }
 }
 
 
@@ -155,20 +161,23 @@ extension BluetoothSerial: CBCentralManagerDelegate, CBPeripheralDelegate {
         guard let characteristics = service.characteristics else { return }
         for characteristic in characteristics {
             if characteristicUUIDArray.contains(characteristic.uuid) {
-                print("characteristic Found!")
-                self.serialWriteCharistic = characteristic
-                centralManager.stopScan()
-                let length = peripheral.maximumWriteValueLength(for: .withResponse)
-                print("maximumWriteValueLength: \(length) Byte")
-                
-                stopTimer()
-                discoveredPeripherals.removeAll{ info in
-                    return info.peripheral.identifier != connectedPeripheral?.identifier
+                if characteristic.uuid == fb301WriteCharUUID {
+                    self.serialWriteCharistic = characteristic
+                    centralManager.stopScan()
+                    let length = peripheral.maximumWriteValueLength(for: .withResponse)
+                    print("maximumWriteValueLength: \(length) Byte")
+                    
+                    stopTimer()
+                    discoveredPeripherals.removeAll{ info in
+                        return info.peripheral.identifier != connectedPeripheral?.identifier
+                    }
+                    self.centralManager.stopScan()
+                    delegate?.bluetoothConnected()
                 }
-                self.centralManager.stopScan()
-                delegate?.bluetoothConnected()
-                
-                break
+                else if fb301ReadCharUUID == characteristic.uuid {
+                    print("characteristic for Serial Read Found!")
+                    subscribeToSerialRead(characteristic: characteristic, peripheral: peripheral)
+                }
             }
         }
 
@@ -185,8 +194,22 @@ extension BluetoothSerial: CBCentralManagerDelegate, CBPeripheralDelegate {
             else {
                 repeating = 0
                 pendingData = []
-                //print("Write failed with error: \(error!.localizedDescription)")
                 delegate?.btWriteFailed()
+            }
+        }
+    }
+    
+    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        if let error = error {
+            print("Error receiveing data:  \(error.localizedDescription)")
+            return
+        }
+        if let data = characteristic.value {
+            if let strValue = String(data: data, encoding: .utf8){
+                print("Received data: \(strValue)")
+                delegate?.requestFromHW(command: strValue)
+            } else {
+                print("Received data could not be converted to string")
             }
         }
     }

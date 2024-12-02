@@ -12,6 +12,7 @@ protocol BluetoothVCDelegate: MainViewController {
     func bluetoothConnected(serial: BluetoothSerial)
     func btWriteFailed()
     func bluetoothDisconnected(alert: UIAlertController)
+    func requestFromHW(command: String);
 }
 
 class BluetoothVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
@@ -110,6 +111,9 @@ class BluetoothVC: UIViewController, UITableViewDelegate, UITableViewDataSource 
 
 
 extension BluetoothVC: BluetoothSerialDelegate {
+    func requestFromHW(command: String) {
+        delegate?.requestFromHW(command: command)
+    }
     
     func didDiscoverNewPeripheral(_ lastIndex: Int) {
         let ip = IndexPath(row: lastIndex, section: 0)
