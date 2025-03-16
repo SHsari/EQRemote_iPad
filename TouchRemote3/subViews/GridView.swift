@@ -7,6 +7,8 @@
 
 import UIKit
 
+// 로그스케일로 주파수 그리드를 그어주고
+// gain값, 즉 가로축은 +- 6dB 마다 선을 그어줘요.
 func freqToNormPos(freq: [Double]) -> [Double] {
     return freq.map{ (log10($0) - minLogFrequency) / logFrequencyRange }
 }

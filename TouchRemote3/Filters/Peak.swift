@@ -7,6 +7,7 @@
 
 import Foundation
 
+// 피크필터
 class Peak: EQFilterClass, EQFilterPrtc {
     
     //intermediate Variables//

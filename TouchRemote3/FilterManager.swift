@@ -6,18 +6,28 @@
 //
 
 import Foundation
-
+// Model에 해당합니다.
+// 밴드가 8개, 각 밴드별로 타입을 설정할 수 있고,
+// 타입에 맞는 EQFilter를 상속하는 클래스를 불러와서
+// 그래프를 그리는 연산을 진행합니다.
 class FilterManager {
-    
+    // 파라미터 업데이트에 따른 그래프 연산을 끝났으면, FilterView에게 알려야 합니다.
     var filterView = FilterView()
+    // 그래프(주파수 응답 그래프라서 Response 입니다)
     var allResponse: [Response] = []
+    // 1개 밴드를 변경할 시에 필요한 덧셈연산을 줄이기 위해 Tree형으로 구현(했었습니다.)
     var rootResponse = ResponseParent([])
+    // 현재는 Tree를 이용한 덧셈연산이 아닌,
+    // 파라미터 변경 시작시 변경되는 밴드의 그래프를 빼놓고 변경된 값을 더해주는 식으로 진행합니다.
+    // 아무리 생각해도 비효율 적인 것 같네요.
     var pendingResp = defaultDoubleArray
+    // 변경진행중인 그래프
     var activeResponse = Response()
     
     var filters: [EQFilterPrtc] = []
     var activeFilter: EQFilterPrtc = Peak()
     
+    // 파라미터 기본값을 담은 배열입니다 mainVC에도 설명이 있습니다.
     var norm: [XYZPosition] = []
     var bind: [XYZPosition] = []
     
@@ -42,17 +52,20 @@ class FilterManager {
         filterView.initialize(rootResponse)
     }
     
+    // 특정 밴드에 변화가 시작되는 경우
     func willBeChange(in index: Int) {
         activeFilter = filters[index]
         responseWillUpdate(at: index)
         filterView.setActiveIndex(index, allResponse[index])
     }
     
+    // 수시로 업데이트
     func didChange() {
         responseUpdated()
         filterView.responseDidUpdate()
     }
     
+    // 특정밴드의 X, y값 업데이트 시
     func touchesMoved(_ position: XYPosition) {
         activeFilter.setBindX(position.x)
         activeFilter.setBindY(position.y)
@@ -61,6 +74,7 @@ class FilterManager {
         filterView.responseDidUpdate()
     }
     
+    // 특정 밴드의 Q값 업데이트 시
     func sliderMoved(_ value: Double) {
         activeFilter.setBindZ(value)
         activeFilter.updateResponse()
@@ -68,6 +82,7 @@ class FilterManager {
         filterView.responseDidUpdate()
     }
     
+    //
     private func responseWillUpdate(at index: Int) {
         activeResponse = allResponse[index]
         pendingResp = rootResponse.dB - activeResponse.dB
@@ -77,6 +92,10 @@ class FilterManager {
     }
 
     
+    // 파라미터 개별 업데이트입니다.
+    // norm과 bind 값은
+    // norm은 0~1로 노멀라이즈 된 값.
+    // bind는 실제 파라미터로 환산한 값입니다.
     func set(normX: Double, at index: Int) {
         willBeChange(in: index)
         activeFilter.setNormX(normX)
@@ -145,6 +164,7 @@ class FilterManager {
         didChange()
     }    
     
+    // 특정 밴드의; 필터타입이 변경되었을 때 호출되는 함수
     func filterTypeChanged(at index: Int, type: FilterType) {
         willBeChange(in: index)
         let filter = EQFilterClass.typeDict[type]!()
@@ -154,6 +174,7 @@ class FilterManager {
         didChange()
     }
     
+    // on/off 스위치가 토글되었을 때 그래프에 반영하는 함수
     func handleOnOff(at index: Int, isOn: Bool) {
         if !isOn {
             rootResponse.dB = rootResponse.dB - allResponse[index].dB
@@ -163,7 +184,7 @@ class FilterManager {
         filterView.masterGraphUpdate()
     }
 
-    
+    // 뭐였지 트리썼을때 사용한 함수인가.
     func setRootResponse() {
         let tmp = Response()
         for response in self.allResponse {

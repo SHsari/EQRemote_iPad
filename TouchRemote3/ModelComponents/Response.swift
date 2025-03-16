@@ -7,6 +7,8 @@
 
 import Foundation
 
+// 원래는 더블 배열로 하면 되는데,
+// 이상한 욕심에 트리를 구현하고자 클래스로 선언해보았습니다.
 class Response {
     weak var parent: ResponseChildDelegate?
     var dB = defaultDoubleArray
@@ -48,6 +50,7 @@ class ResponseParent: Response, ResponseChildDelegate {
     }
 }
 
+// 요거 쓰나..?
 class ResponseManager {
     var allResponse: [Response] = []
     var pending = defaultDoubleArray

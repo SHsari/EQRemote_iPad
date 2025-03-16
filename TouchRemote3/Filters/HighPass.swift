@@ -7,6 +7,7 @@
 
 import Foundation
 
+// 하이패스 필터
 class HighPass: EQFilterClass, EQFilterPrtc {
     
     private lazy var w0 = pi2 * freq

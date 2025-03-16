@@ -7,7 +7,10 @@
 
 import Foundation
 
-
+// 타입별로 서로 다른 계산함수가 필요합니다.
+// 타입별로 클래스를 만들었으며,
+// 이 클래스들이 만족해야하는 최소조건명세가 다음과 같습니다.
+// 또 이런 클래스(또는 프로토콜)을 통해서 쉽게 접근이 가능하죠. 
 protocol EQFilterPrtc {
     func updateResponse()
     var norm: XYZPosition { get set }
